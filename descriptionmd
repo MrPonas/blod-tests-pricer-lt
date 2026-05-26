@@ -1,0 +1,4 @@
+Laboratorijų Kainos — a free public website for Lithuania that aggregates blood test prices from all major private laboratory networks (Synlab, Anteja, Affidea, Meliva, Rezus and others) into one place.
+Instead of visiting six different lab websites to find the cheapest price for a specific test, users search by test name or browse by category (hormones, vitamins, blood count, etc.) and instantly see a side-by-side price comparison table showing every lab's current price, with the cheapest option highlighted.
+Prices are scraped automatically once per day using Firecrawl for page rendering and the Claude API for intelligent data extraction, then stored in a PostgreSQL database. The site is built with Next.js and deployed on Vercel. A lightweight admin panel lets the owner monitor scrape health and review any unmatched test names.
+The goal is simple: save people time and money when deciding where to get their blood tests done.
