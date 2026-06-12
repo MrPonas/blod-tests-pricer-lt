@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import PriceTable from '@/app/components/PriceTable';
 import ShareButton from '@/app/components/ShareButton';
+import AddToCartButton from '@/app/components/AddToCartButton';
 import { getDisplayName, isProcedure } from '@/lib/utils';
 
 export const revalidate = 86400;
@@ -104,7 +105,10 @@ export default async function TestPage({ params }: PageProps) {
             <p className="text-[#8a8a82] text-sm mt-0.5">{test.canonical_name_en}</p>
           )}
         </div>
-        <ShareButton />
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <AddToCartButton testId={id} />
+          <ShareButton />
+        </div>
       </div>
 
       {/* Cheapest price summary card */}

@@ -7,7 +7,7 @@ export function getDisplayName(nameLt: string, aliases?: string[]): string {
   // Strip |CODE| or IKL-style bracketed prefixes: "|KL39| Foo" → "Foo"
   const pipeMatch = nameLt.match(/^\|[A-Z0-9]+\|\s*(.*)/);
   if (pipeMatch) {
-    const rest = pipeMatch[1].trim();
+    const rest = pipeMatch[1].replace(/^[\s\-–|]+/, '').trim();
     return rest ? rest.charAt(0).toUpperCase() + rest.slice(1) : nameLt;
   }
 
@@ -25,11 +25,17 @@ export function getDisplayName(nameLt: string, aliases?: string[]): string {
       );
       if (clean) return clean;
     }
-    // Strip the leading code token (e.g. "VitD " → remove first word)
-    const stripped = nameLt.replace(/^\S+\s+/, '');
+    // Strip the leading code token (e.g. "VitD " → remove first word) + any leftover dashes
+    const stripped = nameLt.replace(/^\S+\s+/, '').replace(/^[\s\-–|]+/, '').trim();
     if (stripped && stripped !== nameLt) {
       return stripped.charAt(0).toUpperCase() + stripped.slice(1);
     }
+  }
+
+  // Strip any leading dashes/pipes that appear without a recognized code prefix
+  const dashStripped = nameLt.replace(/^[\s\-–|]+/, '').trim();
+  if (dashStripped !== nameLt && dashStripped.length > 0) {
+    return dashStripped.charAt(0).toUpperCase() + dashStripped.slice(1);
   }
 
   return nameLt;
@@ -39,6 +45,7 @@ export function getDisplayName(nameLt: string, aliases?: string[]): string {
 export const PROCEDURE_KEYWORDS = [
   'injekcija', 'infuzija', 'procedūra', 'procedurų', 'konsultacija',
   'programa', 'paketas', 'masažas', 'masažų',
+  'paletė', 'profilis', 'kursas',
 ];
 
 export function isProcedure(nameLt: string): boolean {

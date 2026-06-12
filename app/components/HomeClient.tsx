@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchIndex } from '@/app/hooks/useSearchIndex';
 import { getDisplayName } from '@/lib/utils';
 import { optimizeBasket } from '@/lib/basket-optimizer';
@@ -419,6 +419,7 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
   // ── State ──────────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<'comparison' | 'cart' | 'trends' | 'locations'>('comparison');
   const [cartItems, setCartItems] = useState<string[]>([]);
+  const cartFirstRender = useRef(true);
   const [visibleLabs, setVisibleLabs] = useState<string[]>(() => labs.map(l => l.id));
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -443,6 +444,19 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
     labs.filter(lab => !tests.some(t => (t.prices[lab.id] ?? 0) > 0)).map(l => l.id)
   ), [labs, tests]);
 
+
+  // ── Cart localStorage sync ─────────────────────────────────────────────────
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('lab-cart');
+      if (saved) setCartItems(JSON.parse(saved));
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (cartFirstRender.current) { cartFirstRender.current = false; return; }
+    try { localStorage.setItem('lab-cart', JSON.stringify(cartItems)); } catch {}
+  }, [cartItems]);
 
   // ── Fetch trends when tab or test changes ──────────────────────────────────
   useEffect(() => {
