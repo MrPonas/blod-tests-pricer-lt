@@ -43,7 +43,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
   const initialLabs = labsParam ? labsParam.split(',').filter(Boolean) : [];
   const initialSort: SortKey =
-    sortParam === 'price_desc' ? 'price_desc' : sortParam === 'name_asc' ? 'name_asc' : 'price_asc';
+    sortParam === 'price_desc' ? 'price_desc' : sortParam === 'name_asc' ? 'name_asc' : sortParam === 'savings_desc' ? 'savings_desc' : 'price_asc';
 
   const [categories, labs] = await Promise.all([getCategories(), getLabs()]);
   const category = categories.find((c) => c.slug === slug);

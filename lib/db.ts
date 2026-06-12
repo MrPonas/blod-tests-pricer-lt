@@ -135,6 +135,25 @@ export async function getTestsByCategory(categorySlug: string): Promise<TestWith
   return (data ?? []) as unknown as TestWithPrices[];
 }
 
+export async function getRelatedTests(categoryId: number, excludeId: number, limit = 6): Promise<{ id: number; canonical_name_lt: string }[]> {
+  const { data } = await db()
+    .from('tests')
+    .select('id, canonical_name_lt, prices!inner(price_eur, is_stale)')
+    .eq('category_id', categoryId)
+    .neq('id', excludeId)
+    .eq('prices.is_stale', false)
+    .gt('prices.price_eur', 0)
+    .order('canonical_name_lt')
+    .limit(limit * 4);
+  const seen = new Set<number>();
+  const out: { id: number; canonical_name_lt: string }[] = [];
+  for (const t of data ?? []) {
+    if (!seen.has(t.id)) { seen.add(t.id); out.push({ id: t.id, canonical_name_lt: t.canonical_name_lt }); }
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 export async function getTestById(id: number): Promise<TestWithPrices | null> {
   const { data, error } = await db()
     .from('tests')

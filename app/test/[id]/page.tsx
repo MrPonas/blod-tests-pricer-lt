@@ -1,4 +1,4 @@
-import { getTestById, getLabs, getPriceHistory, getActiveTestIds } from '@/lib/db';
+import { getTestById, getLabs, getPriceHistory, getActiveTestIds, getRelatedTests } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -52,7 +52,7 @@ export default async function TestPage({ params }: PageProps) {
     getPriceHistory(Number(id)),
   ]);
   if (!test) notFound();
-
+  const related = test.category?.id ? await getRelatedTests(test.category.id, Number(id), 6) : [];
   // Warn about labs that have a price but no booking URL at all (not even lab-level)
   for (const p of test.prices.filter(p => !p.is_stale && Number(p.price_eur) > 0)) {
     if (!p.lab_test_url && !p.lab?.booking_url) {
@@ -206,6 +206,33 @@ export default async function TestPage({ params }: PageProps) {
                 );
               })}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stale data warning */}
+      {test.prices.some(p => p.is_stale) && activePrices.length > 0 && (
+        <p className="bg-[#fffcf0] border-2 border-[#f0e6c5] text-[#856d2b] rounded-none font-sans text-[11px] text-center px-4 py-3 mb-4">
+          ⚠ Kai kurių laboratorijų kainos gali būti neatnaujintos
+        </p>
+      )}
+
+      {/* Related tests */}
+      {related.length > 0 && (
+        <div className="mb-6">
+          <h2 className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#8a8a82] mb-3">
+            Susiję tyrimai
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {related.map(r => (
+              <Link
+                key={r.id}
+                href={`/test/${r.id}`}
+                className="px-3 py-1.5 rounded-none border-2 border-[#1a1a1a] bg-white hover:bg-[#f4f4f0] font-mono text-[11px] text-[#1a1a1a] transition-colors"
+              >
+                {r.canonical_name_lt}
+              </Link>
+            ))}
           </div>
         </div>
       )}

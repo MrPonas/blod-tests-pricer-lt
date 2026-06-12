@@ -78,14 +78,17 @@ export default function SortableTestList({
       if (sort === 'name_asc') {
         return a.canonical_name_lt.localeCompare(b.canonical_name_lt, 'lt');
       }
-      const getMin = (t: TestWithPrices) => {
-        const prices = t.prices
-          .filter((p) => !p.is_stale && Number(p.price_eur) > 0)
-          .map((p) => Number(p.price_eur));
-        return prices.length > 0 ? Math.min(...prices) : Infinity;
-      };
-      const aMin = getMin(a);
-      const bMin = getMin(b);
+      const getActivePrices = (t: TestWithPrices) =>
+        t.prices.filter((p) => !p.is_stale && Number(p.price_eur) > 0).map((p) => Number(p.price_eur));
+      if (sort === 'savings_desc') {
+        const aPrices = getActivePrices(a);
+        const bPrices = getActivePrices(b);
+        const aSav = aPrices.length > 1 ? Math.max(...aPrices) - Math.min(...aPrices) : 0;
+        const bSav = bPrices.length > 1 ? Math.max(...bPrices) - Math.min(...bPrices) : 0;
+        return bSav - aSav;
+      }
+      const aMin = getActivePrices(a).length > 0 ? Math.min(...getActivePrices(a)) : Infinity;
+      const bMin = getActivePrices(b).length > 0 ? Math.min(...getActivePrices(b)) : Infinity;
       if (aMin === Infinity && bMin === Infinity) return a.canonical_name_lt.localeCompare(b.canonical_name_lt, 'lt');
       if (aMin === Infinity) return 1;
       if (bMin === Infinity) return -1;
@@ -137,6 +140,16 @@ export default function SortableTestList({
                 {test.canonical_name_en && (
                   <span className="font-mono text-[10px] text-[#8a8a82]">{test.canonical_name_en}</span>
                 )}
+                {(() => {
+                  const ap = test.prices.filter(p => !p.is_stale && Number(p.price_eur) > 0).map(p => Number(p.price_eur));
+                  if (ap.length < 2) return null;
+                  const mn = Math.min(...ap), mx = Math.max(...ap);
+                  return (
+                    <span className="font-mono text-[10px] text-[#8a8a82] whitespace-nowrap">
+                      €{mn.toFixed(2)}{mn !== mx ? ` – €${mx.toFixed(2)}` : ''}
+                    </span>
+                  );
+                })()}
                 {test.category && (
                   <Link
                     href={`/category/${test.category.slug}`}

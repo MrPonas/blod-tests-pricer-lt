@@ -591,9 +591,68 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
     LAB_LOCATIONS.filter(l => l.city === cityFilter && (!locLabFilter || l.labName === locLabFilter)),
     [cityFilter, locLabFilter]);
 
+  // Popular tests: id → display label mapping
+  const POPULAR_TESTS: { id: string; label: string }[] = [
+    { id: '168', label: 'BKT' },
+    { id: '2195', label: 'TSH' },
+    { id: '1073', label: 'Vitaminas D' },
+    { id: '1428', label: 'Gliukozė' },
+    { id: '274', label: 'Feritinas' },
+    { id: '107', label: 'ALT' },
+    { id: '1955', label: 'HbA1c' },
+    { id: '1829', label: 'PSA' },
+    { id: '212', label: 'Cholesterolis' },
+    { id: '92', label: 'Vitaminas B12' },
+  ];
+
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+
+      {/* Hero search bar */}
+      <div className="bg-[#fdfdfc] border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] p-6 space-y-4">
+        <div>
+          <p className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#8a8a82] mb-2">Laboratorijų kainos · Lietuva</p>
+          <h1 className="font-serif italic font-bold text-2xl sm:text-3xl text-[#1a1a1a] leading-tight">
+            Raskite pigiausią kraujo tyrimo kainą
+          </h1>
+        </div>
+        <div className="relative max-w-2xl">
+          <Ic.Search c="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8a8a82]" />
+          <input
+            type="text"
+            placeholder="Ieškoti tyrimo... (pvz. vitaminas D, TSH, gliukozė)"
+            aria-label="Ieškoti tyrimo"
+            className="w-full pl-11 pr-10 py-3.5 bg-[#f4f4f0] border-2 border-[#e5e5e0] rounded-none text-sm placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white transition text-[#1a1a1a]"
+            value={searchTerm}
+            onChange={e => { setSearchTerm(e.target.value); if (activeTab !== 'comparison') setActiveTab('comparison'); }}
+          />
+          {!fuseReady && (
+            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-[#8a8a82] border-t-transparent rounded-full animate-spin" />
+          )}
+          {fuseReady && searchTerm && (
+            <button onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold px-2 py-1 bg-[#1a1a1a] text-white rounded-none">
+              ×
+            </button>
+          )}
+        </div>
+        {/* Popular tests chips */}
+        <div className="space-y-2">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[#8a8a82]">Dažniausiai ieškomi tyrimai:</p>
+          <div className="flex flex-wrap gap-2">
+            {POPULAR_TESTS.map(({ id, label }) => (
+              <a
+                key={id}
+                href={`/test/${id}`}
+                className="px-3 py-1.5 rounded-none border-2 border-[#1a1a1a] bg-white hover:bg-[#ecfdf5] hover:border-[#059669] hover:text-[#059669] font-mono text-[11px] text-[#1a1a1a] transition-colors font-bold uppercase tracking-wider"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Promo bar */}
       {labs.length > 0 && (
@@ -771,6 +830,7 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                   <input
                     type="text"
                     placeholder="Ieškoti tyrimo (pvz.: BKT, Vitaminas D, skydliaukė...)"
+                    aria-label="Ieškoti tyrimo"
                     className="w-full pl-11 pr-4 py-3 bg-[#f4f4f0] border border-[#e5e5e0] rounded-none text-sm placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white transition"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}

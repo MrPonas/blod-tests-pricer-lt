@@ -3,12 +3,13 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Lab } from '@/lib/types';
 
-export type SortKey = 'price_asc' | 'price_desc' | 'name_asc';
+export type SortKey = 'price_asc' | 'price_desc' | 'name_asc' | 'savings_desc';
 
 export const SORT_LABELS: Record<SortKey, string> = {
   price_asc: 'Kaina ↑',
   price_desc: 'Kaina ↓',
   name_asc: 'Pavadinimas A–Z',
+  savings_desc: 'Didžiausias skirtumas',
 };
 
 interface Props {

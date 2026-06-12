@@ -47,6 +47,7 @@ export default function SearchClient({ initialQuery }: Props) {
           onChange={e => setInputValue(e.target.value)}
           placeholder="pvz. Vitaminas D, TSH, gliukozė..."
           autoFocus
+          aria-label="Ieškoti tyrimo"
           className="flex-1 px-4 py-3 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] text-[#1a1a1a] placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white text-sm"
         />
         <button
@@ -64,21 +65,31 @@ export default function SearchClient({ initialQuery }: Props) {
       )}
 
       {searched && results.length === 0 && ready && (
-        <div className="text-center py-16">
+        <div className="text-center py-12">
           <p className="text-[#1a1a1a] font-medium mb-1">
             Nerasta tyrimų pagal „{initialQuery}"
           </p>
           <p className="font-mono text-[11px] text-[#8a8a82] uppercase tracking-wider mb-6">
             Patikrinkite rašybą arba bandykite kitą pavadinimą
           </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            <Link
-              href="/tests"
-              className="px-4 py-2 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] font-mono text-[11px] uppercase tracking-wider text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors"
-            >
-              Visi tyrimai →
-            </Link>
+          <p className="font-mono text-[11px] text-[#8a8a82] mb-3">Pabandykite:</p>
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            {['TSH', 'Vitaminas D', 'Gliukozė', 'Cholesterolis', 'Feritinas', 'BKT', 'HbA1c'].map(term => (
+              <Link
+                key={term}
+                href={`/search?q=${encodeURIComponent(term)}`}
+                className="px-3 py-1.5 rounded-none border-2 border-[#1a1a1a] bg-white hover:bg-[#f4f4f0] font-mono text-[11px] text-[#1a1a1a] transition-colors"
+              >
+                {term}
+              </Link>
+            ))}
           </div>
+          <Link
+            href="/tests"
+            className="px-4 py-2 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] font-mono text-[11px] uppercase tracking-wider text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors"
+          >
+            Visi tyrimai →
+          </Link>
         </div>
       )}
 

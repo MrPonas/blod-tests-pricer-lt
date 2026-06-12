@@ -28,11 +28,22 @@ interface SearchEntry {
 async function main() {
   console.log('Generating search index...');
 
-  const { data: tests, error } = await db
-    .from('tests')
-    .select('id, canonical_name_lt, canonical_name_en, aliases, category:categories(slug), prices(price_eur, is_stale, lab_id)');
-
-  if (error) throw error;
+  // Paginate to handle >1000 tests (Supabase default limit)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tests: any[] = [];
+  let page = 0;
+  const PAGE = 1000;
+  while (true) {
+    const { data: batch, error } = await db
+      .from('tests')
+      .select('id, canonical_name_lt, canonical_name_en, aliases, category:categories(slug), prices(price_eur, is_stale, lab_id)')
+      .range(page * PAGE, (page + 1) * PAGE - 1);
+    if (error) throw error;
+    if (!batch || batch.length === 0) break;
+    tests.push(...batch);
+    if (batch.length < PAGE) break;
+    page++;
+  }
 
   const entries: SearchEntry[] = [];
 
