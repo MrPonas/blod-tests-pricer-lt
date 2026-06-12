@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const labs = await getLabs().catch(() => []);
-  const sha = (process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || process.env.NEXT_PUBLIC_GIT_SHA || 'local');
+  const sha = process.env.NEXT_PUBLIC_GIT_SHA || 'dev';
   const buildTime = process.env.NEXT_PUBLIC_BUILD_TIME || new Date().toISOString().split('T')[0];
   return (
     <html lang="lt">
