@@ -1,11 +1,13 @@
 import { getAllTests, getCategories } from '@/lib/db';
 import Link from 'next/link';
 import AllTestsFilter from '@/app/components/AllTestsFilter';
+import { isProcedure } from '@/lib/utils';
 
 export const revalidate = 86400;
 
 export default async function AllTestsPage() {
-  const [tests, categories] = await Promise.all([getAllTests(), getCategories()]);
+  const [allTests, categories] = await Promise.all([getAllTests(), getCategories()]);
+  const tests = allTests.filter(t => !isProcedure(t.canonical_name_lt));
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

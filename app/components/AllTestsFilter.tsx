@@ -105,7 +105,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
           {searchResults.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3 px-4 py-2.5">
               <div className="min-w-0 flex-1">
-                <Link href={`/test/${entry.id}`} className="text-sm text-[#1a1a1a] hover:text-[#8a8a82] transition-colors">
+                <Link href={`/test/${entry.id}`} className="text-sm text-[#1a1a1a] hover:text-[#8a8a82] transition-colors line-clamp-2" title={getDisplayName(entry.name_lt, entry.aliases)}>
                   {getDisplayName(entry.name_lt, entry.aliases)}
                 </Link>
                 {entry.name_en && (
@@ -174,7 +174,7 @@ function TestRows({ tests }: { tests: TestWithPrices[] }) {
         return (
           <div key={test.id} className="flex items-center gap-3 py-2.5">
             <div className="min-w-0 flex-1">
-              <Link href={`/test/${test.id}`} className="text-sm text-[#1a1a1a] hover:text-[#8a8a82] transition-colors">
+              <Link href={`/test/${test.id}`} className="text-sm text-[#1a1a1a] hover:text-[#8a8a82] transition-colors line-clamp-2" title={getDisplayName(test.canonical_name_lt, test.aliases)}>
                 {getDisplayName(test.canonical_name_lt, test.aliases)}
               </Link>
               {test.canonical_name_en && (

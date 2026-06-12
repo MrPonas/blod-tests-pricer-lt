@@ -656,9 +656,8 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
             value={searchTerm}
             onChange={e => { setSearchTerm(e.target.value); if (activeTab !== 'comparison') setActiveTab('comparison'); }}
             onKeyDown={e => {
-              if (e.key === 'Enter' && fuseReady && searchTerm.trim()) {
-                const top = fuseSearch(searchTerm.trim(), 1)[0];
-                if (top) window.location.href = `/test/${top.id}`;
+              if (e.key === 'Enter' && searchTerm.trim()) {
+                window.location.href = `/search?q=${encodeURIComponent(searchTerm.trim())}`;
               }
             }}
           />
