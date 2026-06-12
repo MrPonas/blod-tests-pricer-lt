@@ -23,12 +23,12 @@ export default function SearchBar({ initialValue = '' }: { initialValue?: string
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="pvz. Vitaminas D, TSH, gliukozė, cholesterolis..."
-        className="flex-1 px-4 py-3 rounded-lg border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm shadow-sm"
+        className="flex-1 px-4 py-3 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] text-[#1a1a1a] placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white text-sm"
         autoFocus
       />
       <button
         type="submit"
-        className="px-5 py-3 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-sm whitespace-nowrap"
+        className="px-5 py-3 bg-[#1a1a1a] text-white rounded-none border-2 border-[#1a1a1a] font-bold uppercase tracking-wider text-xs hover:bg-[#333] active:bg-[#000] transition-colors whitespace-nowrap"
       >
         Ieškoti
       </button>

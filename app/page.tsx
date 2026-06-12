@@ -1,180 +1,107 @@
-import Link from 'next/link';
 import { getCategories, getLabs, getAllTests } from '@/lib/db';
-import SearchBar from './components/SearchBar';
+import HomeClient, { type TestUI, type LabUI, type CategoryUI } from './components/HomeClient';
 
 export const revalidate = 3600;
 
-const LAB_COLORS: Record<string, string> = {
-  synlab:  'bg-blue-50  border-blue-200  text-blue-700',
-  anteja:  'bg-teal-50  border-teal-200  text-teal-700',
-  affidea: 'bg-purple-50 border-purple-200 text-purple-700',
-  meliva:  'bg-orange-50 border-orange-200 text-orange-700',
-  rezus:   'bg-rose-50  border-rose-200  text-rose-700',
+const SAMPLING_FEES: Record<string, number> = {
+  anteja: 2.50, synlab: 3.00, affidea: 2.80, meliva: 2.20, rezus: 2.00,
 };
 
+const LAB_COLORS: Record<string, string> = {
+  anteja: '#059669', synlab: '#2563eb', affidea: '#6366f1', meliva: '#0d9488', rezus: '#0284c7',
+};
+
+const LAB_DESCRIPTIONS: Record<string, string> = {
+  anteja: 'Viena didžiausių laboratorijų Lietuvoje su daugiau nei 30 metų patirtimi.',
+  synlab: 'Tarptautinė Vokietijos kapitalo laboratorija, veikianti daugiau nei 40 šalių.',
+  affidea: 'Modernus diagnostikos centras su plačia tyrimų ir vaizdinės diagnostikos paslauga.',
+  meliva: 'Kokybiškas medicinos centras su aukštos klasės laboratorinės diagnostikos paslaugomis.',
+  rezus: 'Greitai augantis laboratorijų tinklas, siūlantis konkurencingas kainas visoje Lietuvoje.',
+};
+
+function makeCode(nameLt: string, nameEn: string | null): string {
+  if (nameEn) {
+    const caps = nameEn.replace(/[^A-Z]/g, '');
+    if (caps.length >= 2 && caps.length <= 6) return caps;
+  }
+  const words = nameLt.trim().split(/\s+/).filter(Boolean);
+  if (words.length >= 2) return words.slice(0, 3).map(w => w[0]?.toUpperCase() ?? '').join('');
+  return nameLt.slice(0, 3).toUpperCase();
+}
+
 export default async function HomePage() {
-  let categories: Awaited<ReturnType<typeof getCategories>> = [];
   let labs: Awaited<ReturnType<typeof getLabs>> = [];
+  let categories: Awaited<ReturnType<typeof getCategories>> = [];
   let allTests: Awaited<ReturnType<typeof getAllTests>> = [];
 
   try {
-    [categories, labs, allTests] = await Promise.all([getCategories(), getLabs(), getAllTests()]);
+    [labs, categories, allTests] = await Promise.all([getLabs(), getCategories(), getAllTests()]);
   } catch {
     // DB not yet seeded
   }
 
-  const totalTests = allTests.length;
-  const testsWithPrices = allTests.filter((t) =>
-    t.prices.some((p) => !p.is_stale && Number(p.price_eur) > 0)
-  ).length;
+  const labsUI: LabUI[] = labs.map(lab => ({
+    id: lab.slug,
+    name: lab.name,
+    samplingFee: SAMPLING_FEES[lab.slug] ?? 2.50,
+    bookingUrl: lab.booking_url,
+    description: LAB_DESCRIPTIONS[lab.slug] ?? '',
+    color: LAB_COLORS[lab.slug] ?? '#8a8a82',
+  }));
 
-  // Popular tests: most lab coverage (highest number of active prices)
-  const popular = [...allTests]
-    .map((t) => ({
-      ...t,
-      activeCount: t.prices.filter((p) => !p.is_stale && Number(p.price_eur) > 0).length,
-      minPrice: Math.min(
-        ...t.prices.filter((p) => !p.is_stale && Number(p.price_eur) > 0).map((p) => Number(p.price_eur)),
-        Infinity
-      ),
-    }))
-    .filter((t) => t.activeCount >= 2)
-    .sort((a, b) => b.activeCount - a.activeCount || a.minPrice - b.minPrice)
-    .slice(0, 6);
+  const categoriesUI: CategoryUI[] = [
+    { id: 'all', name: 'Visi tyrimai' },
+    ...categories.map(c => ({ id: c.slug, name: c.name_lt })),
+  ];
 
-  // Min price per category
-  const categoryMinPrices = new Map<number, number>();
-  allTests.forEach((t) => {
-    if (!t.category_id) return;
-    const prices = t.prices.filter((p) => !p.is_stale && Number(p.price_eur) > 0).map((p) => Number(p.price_eur));
-    if (prices.length === 0) return;
-    const min = Math.min(...prices);
-    const existing = categoryMinPrices.get(t.category_id);
-    if (existing === undefined || min < existing) categoryMinPrices.set(t.category_id, min);
+  const testsUI: TestUI[] = allTests.map(test => {
+    const prices: Record<string, number> = {};
+    const bookingUrls: Record<string, string | null> = {};
+
+    // Stale prices first, then overwrite with fresh — fresh wins
+    for (const p of test.prices) {
+      if (!p.lab?.slug || Number(p.price_eur) <= 0) continue;
+      prices[p.lab.slug] = Number(p.price_eur);
+      bookingUrls[p.lab.slug] = p.lab_test_url ?? null;
+    }
+    for (const p of test.prices) {
+      if (!p.lab?.slug || p.is_stale || Number(p.price_eur) <= 0) continue;
+      prices[p.lab.slug] = Number(p.price_eur);
+      bookingUrls[p.lab.slug] = p.lab_test_url ?? null;
+    }
+
+    const isStale = test.prices.length > 0 && test.prices.every(p => p.is_stale);
+    const latestDate = test.prices.map(p => p.scraped_at).filter(Boolean).sort().at(-1);
+    const updateDate = latestDate ? new Date(latestDate).toLocaleDateString('lt-LT') : '';
+
+    return {
+      id: String(test.id),
+      name: test.canonical_name_lt,
+      latinName: test.canonical_name_en,
+      code: makeCode(test.canonical_name_lt, test.canonical_name_en),
+      category: test.category?.slug ?? 'kita',
+      prices,
+      bookingUrls,
+      isStale,
+      updateDate,
+    };
   });
 
+  const totalTests = allTests.length;
+  const latestScraped = allTests
+    .flatMap(t => t.prices.map(p => p.scraped_at))
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+  const lastUpdated = latestScraped ? new Date(latestScraped).toLocaleDateString('lt-LT') : '';
+
   return (
-    <div>
-      {/* Hero */}
-      <section className="bg-white border-b border-gray-200 py-16 px-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            Palyginkite kraujo tyrimų kainas
-          </h1>
-          <p className="text-gray-500 mb-8 text-sm sm:text-base">
-            Ieškokite tyrimo ir iškart pamatykite kainas visose laboratorijose — vienoje vietoje
-          </p>
-          <SearchBar />
-
-          {/* Stats */}
-          {labs.length > 0 && (
-            <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs text-gray-500">
-              <span className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5">
-                <span className="text-green-500 font-bold">✓</span>
-                {labs.length} laboratorijos
-              </span>
-              {totalTests > 0 && (
-                <span className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5">
-                  <span className="text-blue-500 font-bold">🔬</span>
-                  {testsWithPrices}+ tyrimų su kainomis
-                </span>
-              )}
-              <span className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5">
-                <span className="text-orange-500 font-bold">↻</span>
-                Atnaujinama kasdien
-              </span>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Popular tests */}
-      {popular.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 pt-10">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-            Populiariausi tyrimai
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {popular.map((test) => (
-              <Link
-                key={test.id}
-                href={`/test/${test.id}`}
-                className="flex items-center justify-between gap-2 px-4 py-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all group"
-              >
-                <span className="text-sm text-gray-700 group-hover:text-blue-700 transition-colors leading-snug truncate">
-                  {test.canonical_name_lt}
-                </span>
-                {test.minPrice < Infinity && (
-                  <span className="text-sm font-bold text-green-700 tabular-nums shrink-0">
-                    €{test.minPrice.toFixed(2)}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Categories */}
-      <section className="max-w-5xl mx-auto px-4 py-10">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-5">
-          Naršyti pagal kategoriją
-        </h2>
-        {categories.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {categories.map((cat) => {
-                const minPrice = categoryMinPrices.get(cat.id);
-                return (
-                  <Link
-                    key={cat.slug}
-                    href={`/category/${cat.slug}`}
-                    className="flex flex-col items-center gap-2 p-5 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all text-center group"
-                  >
-                    <span className="text-2xl group-hover:scale-110 transition-transform">{cat.icon}</span>
-                    <span className="text-sm font-medium text-gray-800 leading-tight">{cat.name_lt}</span>
-                    {minPrice !== undefined && (
-                      <span className="text-xs text-green-600 font-medium">nuo €{minPrice.toFixed(2)}</span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-            <div className="mt-4 text-center">
-              <Link href="/tests" className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
-                Peržiūrėti visų tyrimų sąrašą →
-              </Link>
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-12 text-gray-400 text-sm">
-            <p>Kategorijos bus rodomos po pirmojo scrape paleidimo.</p>
-            <p className="mt-1">Pirma įvykdykite SQL schemą Supabase dashboard.</p>
-          </div>
-        )}
-      </section>
-
-      {/* Labs */}
-      {labs.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 pb-12">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-            Kainų duomenys iš
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {labs.map((lab) => {
-              const colorClass = LAB_COLORS[lab.slug] ?? 'bg-gray-50 border-gray-200 text-gray-600';
-              return (
-                <span
-                  key={lab.id}
-                  className={`px-4 py-2 border rounded-full text-sm font-medium ${colorClass}`}
-                >
-                  {lab.name}
-                </span>
-              );
-            })}
-          </div>
-        </section>
-      )}
-    </div>
+    <HomeClient
+      tests={testsUI}
+      labs={labsUI}
+      categories={categoriesUI}
+      totalTests={totalTests}
+      lastUpdated={lastUpdated}
+    />
   );
 }

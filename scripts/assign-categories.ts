@@ -16,6 +16,8 @@ const db = createClient(
 );
 
 const DRY_RUN = process.argv.includes('--dry-run');
+// Also reassign tests currently in 'Kita' (cat 8) if a specific category matches
+const ALSO_KITA = process.argv.includes('--also-kita');
 
 // Categories in DB (id → slug for readability)
 // 1: bendra-kraujo-analize
@@ -465,13 +467,16 @@ function assignCategory(name: string): number {
 }
 
 async function main() {
-  const { data: tests, error } = await db
-    .from('tests')
-    .select('id,canonical_name_lt')
-    .is('category_id', null)
-    .order('id');
+  let query = db.from('tests').select('id,canonical_name_lt,category_id').order('id');
+  if (ALSO_KITA) {
+    query = query.or('category_id.is.null,category_id.eq.8') as typeof query;
+  } else {
+    query = query.is('category_id', null) as typeof query;
+  }
+  const { data: tests, error } = await query;
   if (error) throw error;
   if (!tests?.length) { console.log('No tests without category.'); return; }
+  if (ALSO_KITA) console.log('Mode: reassigning NULL + Kita (id=8) tests');
 
   console.log(`Assigning categories for ${tests.length} tests...${DRY_RUN ? ' [DRY RUN]' : ''}`);
 
@@ -480,6 +485,8 @@ async function main() {
 
   for (const test of tests) {
     const catId = assignCategory(test.canonical_name_lt);
+    // When reassigning Kita, skip tests that would remain in Kita (no improvement)
+    if (ALSO_KITA && test.category_id === 8 && catId === 8) continue;
     counts[catId] = (counts[catId] ?? 0) + 1;
     updates.push({ id: test.id, category_id: catId });
   }

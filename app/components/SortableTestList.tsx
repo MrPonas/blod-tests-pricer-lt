@@ -106,19 +106,19 @@ export default function SortableTestList({
           onClearAll={handleClearAll}
         />
         {filtered.length !== tests.length && (
-          <span className="text-xs text-gray-400 ml-auto">
+          <span className="font-mono text-[11px] text-[#8a8a82] ml-auto">
             {filtered.length} iš {tests.length} tyrimų
           </span>
         )}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-14 text-gray-400">
+        <div className="text-center py-14 text-[#8a8a82]">
           <p className="text-3xl mb-3">🔍</p>
           <p className="text-sm mb-3">Nerasta tyrimų su pasirinktais filtrais.</p>
           <button
             onClick={handleClearAll}
-            className="text-sm text-blue-600 hover:text-blue-800 underline underline-offset-2"
+            className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#1a1a1a] underline underline-offset-2 hover:text-[#8a8a82]"
           >
             Išvalyti filtrus
           </button>
@@ -126,21 +126,21 @@ export default function SortableTestList({
       ) : (
         <div className="space-y-2">
           {filtered.map((test) => (
-            <div key={test.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 border-b border-gray-100 flex items-baseline gap-2 flex-wrap">
+            <div key={test.id} className="bg-[#fdfdfc] rounded-none border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a] overflow-hidden">
+              <div className="px-5 py-3 border-b-2 border-[#1a1a1a] flex items-baseline gap-2 flex-wrap bg-[#f4f4f0]">
                 <Link
                   href={`/test/${test.id}`}
-                  className="font-medium text-gray-900 hover:text-blue-600 transition-colors text-sm leading-snug"
+                  className="font-medium text-[#1a1a1a] hover:text-[#8a8a82] transition-colors text-sm leading-snug"
                 >
                   {test.canonical_name_lt}
                 </Link>
                 {test.canonical_name_en && (
-                  <span className="text-xs text-gray-400">{test.canonical_name_en}</span>
+                  <span className="font-mono text-[10px] text-[#8a8a82]">{test.canonical_name_en}</span>
                 )}
                 {test.category && (
                   <Link
                     href={`/category/${test.category.slug}`}
-                    className="text-xs text-gray-400 hover:text-gray-600 ml-auto"
+                    className="font-mono text-[10px] uppercase tracking-wider text-[#8a8a82] hover:text-[#1a1a1a] ml-auto"
                   >
                     {test.category.icon} {test.category.name_lt}
                   </Link>

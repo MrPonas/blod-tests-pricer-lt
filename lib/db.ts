@@ -1,4 +1,5 @@
 import { createServerClient } from './supabase';
+import { fuzzySearchTests } from './search';
 import type { Lab, Category, Price, ScrapeRun, PendingReview, TestWithPrices } from './types';
 
 function db() {
@@ -39,17 +40,40 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function searchTests(query: string): Promise<TestWithPrices[]> {
+  // Try pg_trgm fuzzy search first; fall back to ilike if RPC not available.
+  try {
+    const fuzzyResults = await fuzzySearchTests(query);
+    if (fuzzyResults.length > 0) return fuzzyResults;
+  } catch {
+    // RPC not yet created — fall through to ilike fallback
+  }
+
+  return ilikeSearchTests(query);
+}
+
+async function ilikeSearchTests(query: string): Promise<TestWithPrices[]> {
   const term = `%${query}%`;
 
-  // Primary search: by canonical name
-  const { data: byName, error } = await db()
-    .from('tests')
-    .select('*, category:categories(*), prices(*, lab:labs(*))')
-    .or(`canonical_name_lt.ilike.${term},canonical_name_en.ilike.${term}`)
-    .limit(40);
-  if (error) throw error;
+  // Use separate ilike queries instead of .or() to avoid PostgREST wildcard issues
+  // with multi-word queries containing spaces (e.g. "Vitaminas D").
+  const [{ data: byLt }, { data: byEn }] = await Promise.all([
+    db()
+      .from('tests')
+      .select('*, category:categories(*), prices(*, lab:labs(*))')
+      .ilike('canonical_name_lt', term)
+      .limit(40),
+    db()
+      .from('tests')
+      .select('*, category:categories(*), prices(*, lab:labs(*))')
+      .ilike('canonical_name_en', term)
+      .limit(20),
+  ]);
 
-  const seenIds = new Set((byName ?? []).map((t) => t.id));
+  const seenIds = new Set<number>();
+  const byName: NonNullable<typeof byLt> = [];
+  for (const t of [...(byLt ?? []), ...(byEn ?? [])]) {
+    if (!seenIds.has(t.id)) { seenIds.add(t.id); byName.push(t); }
+  }
 
   // Also find tests matched by lab_test_name in prices (catches alias variants)
   const { data: byLabName } = await db()
@@ -81,11 +105,11 @@ export async function searchTests(query: string): Promise<TestWithPrices[]> {
     .limit(20);
   const byAliasExtra = (byAlias ?? []).filter((t) => !seenIds.has(t.id));
 
-  const all = [...(byName ?? []), ...byLabTests, ...byAliasExtra];
+  const all = [...byName, ...byLabTests, ...byAliasExtra];
 
-  // Filter to tests with at least one price (stale or not), sort by active price count desc
+  // Only show tests with at least one active (non-stale) price
   return all
-    .filter((t) => t.prices.some((p: Price) => Number(p.price_eur) > 0))
+    .filter((t) => t.prices.some((p: Price) => !p.is_stale && Number(p.price_eur) > 0))
     .sort((a, b) => {
       const aCount = a.prices.filter((p: Price) => !p.is_stale).length;
       const bCount = b.prices.filter((p: Price) => !p.is_stale).length;
@@ -166,11 +190,32 @@ export async function getPriceHistory(
     .order('recorded_at', { ascending: false })
     .limit(60);
   if (error) return [];
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data ?? []).map((r: any) => ({
+  const history = (data ?? []).map((r: any) => ({
     lab_id: r.lab_id,
     lab_name: r.lab?.name ?? '—',
     price_eur: Number(r.price_eur),
     recorded_at: r.recorded_at,
   }));
+
+  // When no history exists yet, include current prices as a single data point
+  // so charts can display the current state rather than showing "no data".
+  if (history.length === 0) {
+    const { data: current } = await db()
+      .from('prices')
+      .select('lab_id, price_eur, scraped_at, lab:labs(name)')
+      .eq('test_id', testId)
+      .eq('is_stale', false)
+      .gt('price_eur', 0);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (current ?? []).map((r: any) => ({
+      lab_id: r.lab_id,
+      lab_name: r.lab?.name ?? '—',
+      price_eur: Number(r.price_eur),
+      recorded_at: r.scraped_at,
+    }));
+  }
+
+  return history;
 }

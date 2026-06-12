@@ -1,11 +1,32 @@
 import { getTestById, getLabs, getPriceHistory } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import PriceTable from '@/app/components/PriceTable';
 import ShareButton from '@/app/components/ShareButton';
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const test = await getTestById(Number(id));
+  if (!test) return { title: 'Tyrimas nerastas | Laboratorijų kainos' };
+
+  const activePrices = test.prices.filter(p => !p.is_stale && Number(p.price_eur) > 0);
+  const minPrice = activePrices.length > 0 ? Math.min(...activePrices.map(p => Number(p.price_eur))) : null;
+  const enPart = test.canonical_name_en ? ` (${test.canonical_name_en})` : '';
+  const pricePart = minPrice ? `. Pigiausia kaina nuo €${minPrice.toFixed(2)}` : '';
+
+  const title = `${test.canonical_name_lt}${enPart} — tyrimo kaina | Laboratorijų kainos`;
+  const description = `Palyginkite ${test.canonical_name_lt} tyrimo kainas tarp Synlab, Anteja, Affidea, Meliva, Rezus${pricePart}. Kainos atnaujinamos kasdien.`;
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: 'website' },
+  };
 }
 
 function formatDate(iso: string) {
@@ -20,6 +41,13 @@ export default async function TestPage({ params }: PageProps) {
     getPriceHistory(Number(id)),
   ]);
   if (!test) notFound();
+
+  // Warn about labs that have a price but no booking URL at all (not even lab-level)
+  for (const p of test.prices.filter(p => !p.is_stale && Number(p.price_eur) > 0)) {
+    if (!p.lab_test_url && !p.lab?.booking_url) {
+      console.warn(`[test/${id}] Lab "${p.lab?.name}" has price but no booking URL (lab_id=${p.lab_id})`);
+    }
+  }
 
   const activePrices = test.prices
     .filter((p) => !p.is_stale && Number(p.price_eur) > 0)
@@ -41,25 +69,25 @@ export default async function TestPage({ params }: PageProps) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <nav className="text-xs text-gray-400 mb-5 flex items-center gap-1.5 flex-wrap">
-        <Link href="/" className="hover:text-gray-600">Pagrindinis</Link>
+      <nav className="font-mono text-[11px] text-[#8a8a82] mb-5 flex items-center gap-1.5 flex-wrap">
+        <Link href="/" className="hover:text-[#1a1a1a] transition-colors">Pagrindinis</Link>
         {test.category && (
           <>
             <span>/</span>
-            <Link href={`/category/${test.category.slug}`} className="hover:text-gray-600">
+            <Link href={`/category/${test.category.slug}`} className="hover:text-[#1a1a1a] transition-colors">
               {test.category.name_lt}
             </Link>
           </>
         )}
         <span>/</span>
-        <span className="text-gray-600 truncate max-w-xs">{test.canonical_name_lt}</span>
+        <span className="text-[#1a1a1a] truncate max-w-xs">{test.canonical_name_lt}</span>
       </nav>
 
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{test.canonical_name_lt}</h1>
+          <h1 className="font-serif italic font-bold text-3xl text-[#1a1a1a]">{test.canonical_name_lt}</h1>
           {test.canonical_name_en && (
-            <p className="text-gray-400 text-sm mt-0.5">{test.canonical_name_en}</p>
+            <p className="text-[#8a8a82] text-sm mt-0.5">{test.canonical_name_en}</p>
           )}
         </div>
         <ShareButton />
@@ -67,15 +95,15 @@ export default async function TestPage({ params }: PageProps) {
 
       {/* Cheapest price summary card */}
       {minPrice !== null && cheapest?.lab && (
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-5 mb-6">
+        <div className="bg-[#ecfdf5] border-2 border-[#059669] shadow-[4px_4px_0px_0px_#059669] rounded-none p-5 mb-6">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">Pigiausia kaina</p>
-              <p className="text-4xl font-bold text-green-700 tabular-nums">€{minPrice.toFixed(2)}</p>
-              <p className="text-sm text-green-600 mt-1 font-medium">{cheapest.lab.name}</p>
+              <p className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#059669] mb-1">Pigiausia kaina</p>
+              <p className="font-mono font-black text-[#059669] tabular-nums text-3xl">€{minPrice.toFixed(2)}</p>
+              <p className="text-sm text-[#047857] mt-1 font-medium">{cheapest.lab.name}</p>
               {savings !== null && expensiveLab && expensiveLab !== cheapest.lab.name && (
-                <p className="text-xs text-green-600 mt-1">
-                  Sutaupykite <span className="font-semibold">€{savings.toFixed(2)}</span> lyginant su {expensiveLab}
+                <p className="font-mono text-[11px] text-[#059669] mt-1">
+                  Sutaupykite <span className="font-bold">€{savings.toFixed(2)}</span> lyginant su {expensiveLab}
                 </p>
               )}
             </div>
@@ -84,7 +112,7 @@ export default async function TestPage({ params }: PageProps) {
                 href={cheapestBookingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm whitespace-nowrap"
+                className="flex-shrink-0 px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white rounded-none border-2 border-[#059669] font-bold uppercase tracking-wider text-xs transition-colors whitespace-nowrap"
               >
                 Registruotis →
               </Link>
@@ -95,9 +123,9 @@ export default async function TestPage({ params }: PageProps) {
 
       {/* Full price comparison table */}
       {activePrices.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-8">
-          <div className="px-5 py-3 border-b border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+        <div className="bg-[#fdfdfc] rounded-none border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] overflow-hidden mb-8">
+          <div className="px-5 py-3 border-b-2 border-[#1a1a1a] bg-[#f4f4f0]">
+            <h2 className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#8a8a82]">
               Kainos visose laboratorijose
             </h2>
           </div>
@@ -106,17 +134,17 @@ export default async function TestPage({ params }: PageProps) {
       )}
 
       {activePrices.length === 0 && (
-        <p className="text-center text-gray-400 text-sm py-4 mb-8">Kainų duomenų nėra.</p>
+        <p className="text-center text-[#8a8a82] text-sm py-4 mb-8">Kainų duomenų nėra.</p>
       )}
 
       {/* Price history */}
       {Object.keys(historyByLab).length > 0 && (
         <div className="mb-6">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          <h2 className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#8a8a82] mb-3">
             Kainų istorija
           </h2>
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-            <div className="divide-y divide-gray-50">
+          <div className="bg-[#fdfdfc] rounded-none border-2 border-[#1a1a1a] overflow-hidden">
+            <div className="divide-y divide-[#e5e5e0]">
               {Object.entries(historyByLab).map(([labId, entries]) => {
                 const latest = entries[0];
                 const previous = entries[1];
@@ -125,21 +153,21 @@ export default async function TestPage({ params }: PageProps) {
                     : latest.price_eur > previous.price_eur ? '↑'
                     : '→'
                   : null;
-                const trendColor = trend === '↓' ? 'text-green-500' : trend === '↑' ? 'text-red-400' : 'text-gray-400';
+                const trendColor = trend === '↓' ? 'text-[#059669]' : trend === '↑' ? 'text-red-500' : 'text-[#8a8a82]';
                 const trendLabel = trend === '↓' ? 'Kaina krito' : trend === '↑' ? 'Kaina kilo' : null;
 
                 return (
                   <div key={labId} className="px-5 py-4">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="text-xs font-semibold text-gray-600">{latest.lab_name}</span>
+                      <span className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#1a1a1a]">{latest.lab_name}</span>
                       {trendLabel ? (
-                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${
-                          trend === '↓' ? 'bg-green-100 text-green-600' : 'bg-red-50 text-red-400'
+                        <span className={`font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-none border ${
+                          trend === '↓' ? 'bg-[#ecfdf5] border-[#a7f3d0] text-[#059669]' : 'bg-red-50 border-red-200 text-red-500'
                         }`}>
                           {trend} {trendLabel}
                         </span>
                       ) : trend === '→' ? (
-                        <span className="text-xs text-gray-400 italic">kaina nepakito</span>
+                        <span className="font-mono text-[10px] text-[#8a8a82]">kaina nepakito</span>
                       ) : null}
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -151,14 +179,14 @@ export default async function TestPage({ params }: PageProps) {
                             : null
                           : null;
                         return (
-                          <span key={i} className="flex items-center gap-1 text-xs bg-gray-50 border border-gray-100 rounded-lg px-2.5 py-1.5 text-gray-700 tabular-nums">
-                            <span className="font-medium">€{entry.price_eur.toFixed(2)}</span>
+                          <span key={i} className="flex items-center gap-1 font-mono text-[11px] bg-[#f4f4f0] border border-[#e5e5e0] rounded-none px-2.5 py-1.5 text-[#1a1a1a] tabular-nums">
+                            <span className="font-bold">€{entry.price_eur.toFixed(2)}</span>
                             {entryTrend && (
-                              <span className={entryTrend === '↓' ? 'text-green-500' : 'text-red-400'}>
+                              <span className={entryTrend === '↓' ? 'text-[#059669]' : 'text-red-500'}>
                                 {entryTrend}
                               </span>
                             )}
-                            <span className="text-gray-400 ml-0.5">{formatDate(entry.recorded_at)}</span>
+                            <span className="text-[#8a8a82] ml-0.5">{formatDate(entry.recorded_at)}</span>
                           </span>
                         );
                       })}
@@ -171,7 +199,7 @@ export default async function TestPage({ params }: PageProps) {
         </div>
       )}
 
-      <p className="text-xs text-gray-400 text-center mt-4">
+      <p className="bg-[#fffcf0] border-2 border-[#f0e6c5] text-[#856d2b] rounded-none font-sans text-[11px] text-center px-4 py-3 mt-4">
         Kainos orientacinės. Visada patikrinkite kainą oficialios laboratorijos svetainėje.
       </p>
     </div>

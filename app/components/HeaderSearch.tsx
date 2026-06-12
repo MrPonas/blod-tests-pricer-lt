@@ -29,11 +29,11 @@ export default function HeaderSearch() {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Ieškoti tyrimo..."
-        className="w-40 sm:w-56 px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+        className="w-40 sm:w-56 px-3 py-2 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] text-sm text-[#1a1a1a] placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white"
       />
       <button
         type="submit"
-        className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+        className="px-3 py-2 bg-[#1a1a1a] text-white rounded-none border-2 border-[#1a1a1a] text-xs font-bold uppercase tracking-wider hover:bg-[#333] transition-colors whitespace-nowrap"
       >
         Ieškoti
       </button>

@@ -34,7 +34,7 @@ export default function PriceTable({ prices, labs }: Props) {
 
   if (labsWithData.length === 0) {
     return (
-      <div className="px-5 py-6 text-center text-sm text-gray-400">Kainų duomenų nėra</div>
+      <div className="px-5 py-6 text-center text-sm text-[#8a8a82]">Kainų duomenų nėra</div>
     );
   }
 
@@ -43,7 +43,7 @@ export default function PriceTable({ prices, labs }: Props) {
   return (
     <div>
       {/* Desktop table header */}
-      <div className="hidden sm:flex items-center px-5 py-2 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide gap-4">
+      <div className="hidden sm:flex items-center px-5 py-2 border-b-2 border-[#1a1a1a] bg-[#f4f4f0] font-mono font-bold text-[11px] uppercase tracking-wider text-[#8a8a82] gap-4">
         <span className="w-4 flex-shrink-0" />
         <span className="flex-1">Laboratorija</span>
         <span className="w-24 text-right">Kaina</span>
@@ -53,7 +53,7 @@ export default function PriceTable({ prices, labs }: Props) {
       </div>
 
       {/* Active prices */}
-      <div className="divide-y divide-gray-50">
+      <div className="divide-y divide-[#e5e5e0]">
         {activeLabs.map((lab) => {
           const price = priceMap.get(lab.id)!;
           const priceNum = Number(price.price_eur);
@@ -65,31 +65,31 @@ export default function PriceTable({ prices, labs }: Props) {
           return (
             <div
               key={lab.id}
-              className={`transition-colors ${isCheapest ? 'bg-green-50' : 'hover:bg-gray-50'}`}
+              className={`transition-colors ${isCheapest ? 'bg-[#ecfdf5]' : 'hover:bg-[#f4f4f0]'}`}
             >
               {/* Desktop row */}
               <div className="hidden sm:flex items-center px-5 py-3.5 gap-4">
                 <div className="w-4 flex-shrink-0 flex items-center justify-center">
-                  {isCheapest && <span className="text-green-500 font-bold text-sm">✓</span>}
+                  {isCheapest && <span className="text-[#059669] font-bold text-sm">✓</span>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className={`text-sm font-medium ${isCheapest ? 'text-green-800' : 'text-gray-800'}`}>
+                  <span className={`text-sm font-medium ${isCheapest ? 'text-[#047857]' : 'text-[#1a1a1a]'}`}>
                     {lab.name}
                   </span>
                   {price.scraped_at && (
-                    <div className="text-xs text-gray-400 mt-0.5">atnaujinta {formatDate(price.scraped_at)}</div>
+                    <div className="font-mono text-[10px] text-[#8a8a82] mt-0.5">atnaujinta {formatDate(price.scraped_at)}</div>
                   )}
                 </div>
                 <div className="w-24 text-right flex-shrink-0">
-                  <span className={`text-base font-bold tabular-nums ${isCheapest ? 'text-green-700' : 'text-gray-900'}`}>
+                  <span className={`font-mono font-bold tabular-nums text-base ${isCheapest ? 'text-[#059669]' : 'text-[#1a1a1a]'}`}>
                     €{priceNum.toFixed(2)}
                   </span>
                 </div>
                 {showBars && (
                   <div className="w-28 hidden md:flex items-center flex-shrink-0">
-                    <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                    <div className="w-full bg-[#e5e5e0] h-1.5 overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${isCheapest ? 'bg-green-400' : 'bg-orange-300'}`}
+                        className={`h-full ${isCheapest ? 'bg-[#059669]' : 'bg-[#8a8a82]'}`}
                         style={{ width: `${barWidth}%` }}
                       />
                     </div>
@@ -97,12 +97,12 @@ export default function PriceTable({ prices, labs }: Props) {
                 )}
                 <div className="w-20 text-right flex-shrink-0">
                   {isCheapest && activePrices.length > 1 && (
-                    <span className="text-xs font-semibold text-green-600 bg-green-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                    <span className="rounded-none bg-[#ecfdf5] border border-[#a7f3d0] text-[#059669] font-mono font-bold text-[9px] uppercase tracking-wider px-1.5 py-0.5 whitespace-nowrap">
                       Pigiausia
                     </span>
                   )}
                   {diff !== null && (
-                    <span className="text-xs text-red-400 tabular-nums whitespace-nowrap">+€{diff.toFixed(2)}</span>
+                    <span className="font-mono text-xs text-[#8a8a82] tabular-nums whitespace-nowrap">+€{diff.toFixed(2)}</span>
                   )}
                 </div>
                 <div className="w-24 flex-shrink-0 flex justify-end">
@@ -111,10 +111,10 @@ export default function PriceTable({ prices, labs }: Props) {
                       href={bookingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
+                      className={`text-xs px-3 py-1.5 rounded-none border-2 transition-colors whitespace-nowrap font-bold uppercase tracking-wider ${
                         isCheapest
-                          ? 'bg-green-600 border-green-600 text-white hover:bg-green-700'
-                          : 'border-blue-200 text-blue-600 hover:bg-blue-50'
+                          ? 'bg-[#059669] border-[#059669] text-white hover:bg-[#047857]'
+                          : 'border-[#1a1a1a] text-[#1a1a1a] bg-white hover:bg-[#f4f4f0]'
                       }`}
                     >
                       Registruotis
@@ -128,26 +128,26 @@ export default function PriceTable({ prices, labs }: Props) {
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-1.5">
-                      {isCheapest && <span className="text-green-500 font-bold text-xs">✓</span>}
-                      <span className={`text-sm font-medium ${isCheapest ? 'text-green-800' : 'text-gray-800'}`}>
+                      {isCheapest && <span className="text-[#059669] font-bold text-xs">✓</span>}
+                      <span className={`text-sm font-medium ${isCheapest ? 'text-[#047857]' : 'text-[#1a1a1a]'}`}>
                         {lab.name}
                       </span>
                       {isCheapest && activePrices.length > 1 && (
-                        <span className="text-xs font-semibold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full">
+                        <span className="rounded-none bg-[#ecfdf5] border border-[#a7f3d0] text-[#059669] font-mono font-bold text-[9px] uppercase tracking-wider px-1.5 py-0.5">
                           Pigiausia
                         </span>
                       )}
                     </div>
                     {price.scraped_at && (
-                      <div className="text-xs text-gray-400 mt-0.5">atnaujinta {formatDate(price.scraped_at)}</div>
+                      <div className="font-mono text-[10px] text-[#8a8a82] mt-0.5">atnaujinta {formatDate(price.scraped_at)}</div>
                     )}
                   </div>
                   <div className="text-right">
-                    <span className={`text-lg font-bold tabular-nums ${isCheapest ? 'text-green-700' : 'text-gray-900'}`}>
+                    <span className={`font-mono font-bold tabular-nums text-lg ${isCheapest ? 'text-[#059669]' : 'text-[#1a1a1a]'}`}>
                       €{priceNum.toFixed(2)}
                     </span>
                     {diff !== null && (
-                      <div className="text-xs text-red-400 tabular-nums">+€{diff.toFixed(2)}</div>
+                      <div className="font-mono text-xs text-[#8a8a82] tabular-nums">+€{diff.toFixed(2)}</div>
                     )}
                   </div>
                 </div>
@@ -156,10 +156,10 @@ export default function PriceTable({ prices, labs }: Props) {
                     href={bookingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`mt-2 block w-full text-center text-xs py-2 rounded-lg font-medium transition-colors ${
+                    className={`mt-2 block w-full text-center text-xs py-2 rounded-none border-2 font-bold uppercase tracking-wider transition-colors ${
                       isCheapest
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'border border-blue-200 text-blue-600 hover:bg-blue-50'
+                        ? 'bg-[#059669] border-[#059669] text-white hover:bg-[#047857]'
+                        : 'border-[#1a1a1a] text-[#1a1a1a] bg-white hover:bg-[#f4f4f0]'
                     }`}
                   >
                     Registruotis
@@ -173,9 +173,9 @@ export default function PriceTable({ prices, labs }: Props) {
 
       {/* Stale prices — collapsed */}
       {staleLabs.length > 0 && (
-        <div className="border-t border-gray-100 px-5 py-2">
+        <div className="bg-[#fffcf0] border-t border-[#f0e6c5] px-5 py-2">
           <details className="group">
-            <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-500 select-none list-none flex items-center gap-1">
+            <summary className="font-mono text-[11px] text-[#856d2b] cursor-pointer hover:text-[#6b5622] select-none list-none flex items-center gap-1">
               <span className="group-open:hidden">▸</span>
               <span className="hidden group-open:inline">▾</span>
               Senų duomenų ({staleLabs.length})
@@ -185,11 +185,11 @@ export default function PriceTable({ prices, labs }: Props) {
                 const price = priceMap.get(lab.id)!;
                 return (
                   <div key={lab.id} className="flex items-center gap-3 py-1">
-                    <span className="flex-1 text-xs text-gray-400">{lab.name}</span>
-                    <span className="text-xs text-gray-300 tabular-nums">
+                    <span className="flex-1 font-mono text-[11px] text-[#8a8a82]">{lab.name}</span>
+                    <span className="font-mono text-xs text-[#8a8a82] tabular-nums">
                       €{Number(price.price_eur).toFixed(2)}
                     </span>
-                    <span className="text-xs text-gray-300 italic">senų duomenų</span>
+                    <span className="font-mono text-[10px] text-[#856d2b] uppercase tracking-wider bg-[#fffcf0] border border-[#f0e6c5] px-1.5 py-0.5">senų duomenų</span>
                   </div>
                 );
               })}

@@ -16,11 +16,11 @@ function SimilarityBadge({ value }: { value: number }) {
   const pct = Math.round(value * 100);
   const color =
     value >= 0.98 ? 'bg-red-100 text-red-700' :
-    value >= 0.95 ? 'bg-orange-100 text-orange-700' :
-    value >= 0.92 ? 'bg-yellow-100 text-yellow-700' :
-    'bg-gray-100 text-gray-500';
+    value >= 0.95 ? 'bg-[#fffcf0] text-[#856d2b]' :
+    value >= 0.92 ? 'bg-[#f4f4f0] text-[#8a8a82]' :
+    'bg-[#f4f4f0] text-[#8a8a82]';
   return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-medium tabular-nums ${color}`}>
+    <span className={`font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-none tabular-nums ${color}`}>
       {pct}%
     </span>
   );
@@ -68,20 +68,20 @@ export default function GapsPage() {
   if (!authed) {
     return (
       <div className="max-w-sm mx-auto px-4 py-24">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Administratoriaus sritis</h1>
+        <h1 className="font-serif italic font-bold text-xl text-[#1a1a1a] mb-6">Administratoriaus sritis</h1>
         <form onSubmit={(e) => { e.preventDefault(); load(token); }} className="space-y-3">
           <input
             type="password"
             value={token}
             onChange={(e) => setToken(e.target.value)}
             placeholder="Slaptažodis"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2.5 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] text-sm text-[#1a1a1a] focus:outline-none focus:border-[#1a1a1a] focus:bg-white"
           />
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="w-full py-2.5 bg-[#1a1a1a] text-white rounded-none border-2 border-[#1a1a1a] font-bold uppercase tracking-wider text-xs hover:bg-[#333] disabled:opacity-50 transition-colors"
           >
             {loading ? 'Kraunama...' : 'Prisijungti'}
           </button>
@@ -97,21 +97,21 @@ export default function GapsPage() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Padengiamumo spragos</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="font-serif italic font-bold text-2xl text-[#1a1a1a]">Padengiamumo spragos</h1>
+          <p className="font-mono text-[11px] text-[#8a8a82] mt-1">
             Skirtingų laboratorijų tyrimai, susietie su skirtingais kanonais — galimos susiliejimai.
           </p>
         </div>
         <button
           onClick={() => load(token)}
           disabled={loading}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+          className="px-4 py-2 rounded-none border-2 border-[#1a1a1a] font-bold uppercase tracking-wider text-xs text-[#1a1a1a] hover:bg-[#f4f4f0] disabled:opacity-50 transition-colors"
         >
           {loading ? 'Kraunama...' : 'Atnaujinti'}
         </button>
       </div>
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+      {error && <p className="text-red-500 font-mono text-[11px] mb-4">{error}</p>}
 
       {/* Filter tabs */}
       <div className="flex gap-2 mb-4">
@@ -119,10 +119,10 @@ export default function GapsPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-none font-mono font-bold text-[11px] uppercase tracking-wider transition-colors ${
               filter === f
-                ? 'bg-blue-600 text-white'
-                : 'border border-gray-300 text-gray-600 hover:bg-gray-50'
+                ? 'bg-[#1a1a1a] text-white border-2 border-[#1a1a1a]'
+                : 'border-2 border-[#e5e5e0] text-[#63635e] hover:border-[#1a1a1a] hover:text-[#1a1a1a]'
             }`}
           >
             {f === 'all'    && `Visi (${pairs.length - dismissed.size})`}
@@ -132,21 +132,21 @@ export default function GapsPage() {
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      <div className="bg-[#fdfdfc] rounded-none border-2 border-[#1a1a1a] overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-xs text-gray-400 bg-gray-50 border-b border-gray-100">
-              <th className="px-4 py-2 text-left font-medium w-8">%</th>
-              <th className="px-4 py-2 text-left font-medium">Kanonas A</th>
-              <th className="px-4 py-2 text-left font-medium">Lab. A</th>
-              <th className="px-4 py-2 text-left font-medium">Kanonas B</th>
-              <th className="px-4 py-2 text-left font-medium">Lab. B</th>
-              <th className="px-4 py-2 text-left font-medium w-24"></th>
+            <tr className="font-mono text-[11px] uppercase tracking-wider text-[#8a8a82] bg-[#f4f4f0] border-b-2 border-[#1a1a1a]">
+              <th className="px-4 py-2 text-left font-bold w-8">%</th>
+              <th className="px-4 py-2 text-left font-bold">Kanonas A</th>
+              <th className="px-4 py-2 text-left font-bold">Lab. A</th>
+              <th className="px-4 py-2 text-left font-bold">Kanonas B</th>
+              <th className="px-4 py-2 text-left font-bold">Lab. B</th>
+              <th className="px-4 py-2 text-left font-bold w-24"></th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((p) => (
-              <tr key={`${p.id1}-${p.id2}`} className="border-b border-gray-50 last:border-0 hover:bg-gray-50">
+              <tr key={`${p.id1}-${p.id2}`} className="border-b border-[#e5e5e0] last:border-0 hover:bg-[#f4f4f0]">
                 <td className="px-4 py-3">
                   <SimilarityBadge value={p.similarity} />
                 </td>
@@ -155,33 +155,33 @@ export default function GapsPage() {
                     href={`/test/${p.id1}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-700 hover:underline font-medium"
+                    className="text-[#1a1a1a] hover:text-[#8a8a82] hover:underline font-medium"
                   >
                     {p.name1}
                   </a>
-                  <div className="text-xs text-gray-400">id={p.id1}</div>
+                  <div className="font-mono text-[10px] text-[#8a8a82]">id={p.id1}</div>
                 </td>
-                <td className="px-4 py-3 text-gray-600 text-xs whitespace-nowrap">
-                  {p.labs1 ?? <span className="text-gray-300 italic">nėra kainų</span>}
+                <td className="px-4 py-3 font-mono text-[11px] text-[#8a8a82] whitespace-nowrap">
+                  {p.labs1 ?? <span className="italic">nėra kainų</span>}
                 </td>
                 <td className="px-4 py-3">
                   <a
                     href={`/test/${p.id2}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-700 hover:underline font-medium"
+                    className="text-[#1a1a1a] hover:text-[#8a8a82] hover:underline font-medium"
                   >
                     {p.name2}
                   </a>
-                  <div className="text-xs text-gray-400">id={p.id2}</div>
+                  <div className="font-mono text-[10px] text-[#8a8a82]">id={p.id2}</div>
                 </td>
-                <td className="px-4 py-3 text-gray-600 text-xs whitespace-nowrap">
-                  {p.labs2 ?? <span className="text-gray-300 italic">nėra kainų</span>}
+                <td className="px-4 py-3 font-mono text-[11px] text-[#8a8a82] whitespace-nowrap">
+                  {p.labs2 ?? <span className="italic">nėra kainų</span>}
                 </td>
                 <td className="px-4 py-3">
                   <button
                     onClick={() => dismiss(p.id1, p.id2)}
-                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                    className="font-mono text-[11px] uppercase tracking-wider text-[#8a8a82] hover:text-[#1a1a1a] transition-colors"
                   >
                     Praleisti
                   </button>
@@ -190,7 +190,7 @@ export default function GapsPage() {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-gray-400 text-sm">
+                <td colSpan={6} className="px-4 py-12 text-center font-mono text-[11px] text-[#8a8a82]">
                   {loading ? 'Kraunama...' : 'Spragų nerasta ✓'}
                 </td>
               </tr>
@@ -200,8 +200,8 @@ export default function GapsPage() {
       </div>
 
       {filtered.length > 0 && (
-        <p className="text-xs text-gray-400 mt-3">
-          Norėdami susieti, paleiskite <code className="bg-gray-100 px-1 rounded">scripts/audit-coverage-gaps.ts</code> arba sukurkite tikslinį merge skriptą.
+        <p className="font-mono text-[11px] text-[#8a8a82] mt-3">
+          Norėdami susieti, paleiskite <code className="bg-[#f4f4f0] border border-[#e5e5e0] px-1">scripts/audit-coverage-gaps.ts</code> arba sukurkite tikslinį merge skriptą.
         </p>
       )}
     </div>

@@ -18,7 +18,11 @@ export default function ShareButton() {
   return (
     <button
       onClick={handleCopy}
-      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
+      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-none border-2 font-mono font-bold text-[11px] uppercase tracking-wider transition-colors ${
+        copied
+          ? 'bg-[#059669] text-white border-[#059669]'
+          : 'border-[#1a1a1a] bg-white text-[#1a1a1a] hover:bg-[#f4f4f0]'
+      }`}
     >
       {copied ? (
         <>

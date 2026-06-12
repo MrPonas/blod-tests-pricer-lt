@@ -57,17 +57,17 @@ export default function AllTestsFilter({ tests, categories }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Ieškoti sąraše..."
-          className="w-full sm:w-80 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+          className="w-full sm:w-80 px-4 py-2 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] text-sm text-[#1a1a1a] placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white"
         />
 
         {categories.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             <button
               onClick={() => setActiveCategory(null)}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+              className={`px-3 py-1 rounded-none font-mono text-[11px] font-bold uppercase tracking-widest border transition-colors ${
                 activeCategory === null
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                  ? 'bg-[#1a1a1a] border-[#1a1a1a] text-white'
+                  : 'border-[#e5e5e0] bg-[#f4f4f0] text-[#63635e] hover:border-[#1a1a1a] hover:text-[#1a1a1a]'
               }`}
             >
               Visi
@@ -76,10 +76,10 @@ export default function AllTestsFilter({ tests, categories }: Props) {
               <button
                 key={cat.slug}
                 onClick={() => setActiveCategory(cat.slug === activeCategory ? null : cat.slug)}
-                className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                className={`px-3 py-1 rounded-none font-mono text-[11px] font-bold uppercase tracking-widest border transition-colors ${
                   activeCategory === cat.slug
-                    ? 'bg-blue-600 border-blue-600 text-white'
-                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                    ? 'bg-[#1a1a1a] border-[#1a1a1a] text-white'
+                    : 'border-[#e5e5e0] bg-[#f4f4f0] text-[#63635e] hover:border-[#1a1a1a] hover:text-[#1a1a1a]'
                 }`}
               >
                 {cat.icon} {cat.name_lt}
@@ -89,7 +89,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
         )}
       </div>
 
-      <p className="text-sm text-gray-400 mb-4">
+      <p className="font-mono text-[11px] text-[#8a8a82] uppercase tracking-wider mb-4">
         {filtered.length !== tests.length
           ? `${filtered.length} iš ${tests.length} tyrimų`
           : `${tests.length} tyrimų · ${totalWithPrices} su kainomis`
@@ -97,7 +97,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
       </p>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-14 text-gray-400">
+        <div className="text-center py-14 text-[#8a8a82]">
           <p className="text-3xl mb-3">🔍</p>
           <p className="text-sm">Nerasta tyrimų pagal paiešką</p>
         </div>
@@ -109,7 +109,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
               <a
                 key={letter}
                 href={`#letter-${letter}`}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-none border border-[#e5e5e0] bg-[#f4f4f0] font-mono font-bold text-[11px] text-[#63635e] hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
               >
                 {letter}
               </a>
@@ -119,8 +119,8 @@ export default function AllTestsFilter({ tests, categories }: Props) {
           <div className="space-y-8">
             {letters.map((letter) => (
               <div key={letter} id={`letter-${letter}`}>
-                <div className="sticky top-14 bg-gray-50 py-1.5 mb-2 border-b border-gray-200">
-                  <span className="text-sm font-bold text-gray-400 uppercase">{letter}</span>
+                <div className="sticky top-14 bg-[#fdfdfc] py-1.5 mb-2 border-b border-[#e5e5e0]">
+                  <span className="font-mono font-bold text-[#8a8a82] uppercase text-[11px] tracking-widest">{letter}</span>
                 </div>
                 <TestRows tests={byLetter[letter]} />
               </div>
@@ -128,7 +128,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
           </div>
         </>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+        <div className="bg-[#fdfdfc] rounded-none border-2 border-[#1a1a1a] divide-y divide-[#e5e5e0]">
           {filtered.map((test) => {
             const activePrices = test.prices.filter((p) => !p.is_stale && Number(p.price_eur) > 0);
             const minPrice = activePrices.length > 0
@@ -137,25 +137,25 @@ export default function AllTestsFilter({ tests, categories }: Props) {
             return (
               <div key={test.id} className="flex items-center gap-3 px-4 py-2.5">
                 <div className="min-w-0 flex-1">
-                  <Link href={`/test/${test.id}`} className="text-sm text-gray-800 hover:text-blue-600 transition-colors">
+                  <Link href={`/test/${test.id}`} className="text-sm text-[#1a1a1a] hover:text-[#8a8a82] transition-colors">
                     {test.canonical_name_lt}
                   </Link>
                   {test.canonical_name_en && (
-                    <span className="ml-2 text-xs text-gray-400">{test.canonical_name_en}</span>
+                    <span className="ml-2 font-mono text-[10px] text-[#8a8a82]">{test.canonical_name_en}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {test.category && (
-                    <span className="hidden sm:inline text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                    <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider text-[#8a8a82] bg-[#f4f4f0] border border-[#e5e5e0] px-2 py-0.5">
                       {test.category.icon} {test.category.name_lt}
                     </span>
                   )}
                   {minPrice !== null ? (
-                    <span className="text-sm font-semibold text-green-700 tabular-nums w-16 text-right">
+                    <span className="font-mono font-bold text-[#059669] tabular-nums w-16 text-right text-sm">
                       €{minPrice.toFixed(2)}
                     </span>
                   ) : (
-                    <span className="text-xs text-gray-300 w-16 text-right">—</span>
+                    <span className="font-mono text-[#8a8a82] w-16 text-right text-xs">—</span>
                   )}
                 </div>
               </div>
@@ -169,7 +169,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
 
 function TestRows({ tests }: { tests: TestWithPrices[] }) {
   return (
-    <div className="divide-y divide-gray-100">
+    <div className="divide-y divide-[#e5e5e0]">
       {tests.map((test) => {
         const activePrices = test.prices.filter((p) => !p.is_stale && Number(p.price_eur) > 0);
         const minPrice = activePrices.length > 0
@@ -178,31 +178,31 @@ function TestRows({ tests }: { tests: TestWithPrices[] }) {
         return (
           <div key={test.id} className="flex items-center gap-3 py-2.5">
             <div className="min-w-0 flex-1">
-              <Link href={`/test/${test.id}`} className="text-sm text-gray-800 hover:text-blue-600 transition-colors">
+              <Link href={`/test/${test.id}`} className="text-sm text-[#1a1a1a] hover:text-[#8a8a82] transition-colors">
                 {test.canonical_name_lt}
               </Link>
               {test.canonical_name_en && (
-                <span className="ml-2 text-xs text-gray-400">{test.canonical_name_en}</span>
+                <span className="ml-2 font-mono text-[10px] text-[#8a8a82]">{test.canonical_name_en}</span>
               )}
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {test.category && (
                 <Link
                   href={`/category/${test.category.slug}`}
-                  className="hidden sm:inline text-xs text-gray-400 hover:text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full"
+                  className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider text-[#8a8a82] hover:text-[#1a1a1a] bg-[#f4f4f0] border border-[#e5e5e0] hover:border-[#1a1a1a] px-2 py-0.5"
                 >
                   {test.category.icon} {test.category.name_lt}
                 </Link>
               )}
               {activePrices.length >= 2 && (
-                <span className="text-xs text-gray-400 tabular-nums">{activePrices.length} lab.</span>
+                <span className="font-mono text-[10px] text-[#8a8a82] tabular-nums">{activePrices.length} lab.</span>
               )}
               {minPrice !== null ? (
-                <span className="text-sm font-semibold text-green-700 tabular-nums w-16 text-right">
+                <span className="font-mono font-bold text-[#059669] tabular-nums w-16 text-right text-sm">
                   €{minPrice.toFixed(2)}
                 </span>
               ) : (
-                <span className="text-xs text-gray-300 w-16 text-right">—</span>
+                <span className="font-mono text-[#8a8a82] w-16 text-right text-xs">—</span>
               )}
             </div>
           </div>

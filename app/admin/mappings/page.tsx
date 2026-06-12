@@ -151,20 +151,20 @@ export default function MappingsPage() {
   if (!authed) {
     return (
       <div className="max-w-sm mx-auto px-4 py-24">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Administratoriaus sritis</h1>
+        <h1 className="font-serif italic font-bold text-xl text-[#1a1a1a] mb-6">Administratoriaus sritis</h1>
         <form onSubmit={(e) => { e.preventDefault(); fetchQueue(token); }} className="space-y-3">
           <input
             type="password"
             value={token}
             onChange={(e) => setToken(e.target.value)}
             placeholder="Slaptažodis"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2.5 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] text-sm text-[#1a1a1a] focus:outline-none focus:border-[#1a1a1a] focus:bg-white"
           />
           {authError && <p className="text-red-500 text-sm">{authError}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="w-full py-2.5 bg-[#1a1a1a] text-white rounded-none border-2 border-[#1a1a1a] font-bold uppercase tracking-wider text-xs hover:bg-[#333] disabled:opacity-50 transition-colors"
           >
             {loading ? 'Tikrinama...' : 'Prisijungti'}
           </button>
@@ -179,30 +179,30 @@ export default function MappingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Žymėjimų peržiūra</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="font-serif italic font-bold text-2xl text-[#1a1a1a]">Žymėjimų peržiūra</h1>
+          <p className="font-mono text-[11px] text-[#8a8a82] mt-0.5">
             {total} liko · {highConf} virš 90% pasitikėjimo
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {msg && <span className="text-sm text-gray-500">{msg}</span>}
+          {msg && <span className="font-mono text-[11px] text-[#8a8a82]">{msg}</span>}
           <button
             onClick={handleBulkApprove}
             disabled={bulkBusy || highConf === 0}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-40 transition-colors"
+            className="px-4 py-2 bg-[#059669] text-white rounded-none border-2 border-[#059669] font-bold uppercase tracking-wider text-xs hover:bg-[#047857] disabled:opacity-40 transition-colors"
           >
             {bulkBusy ? 'Tvirtinama...' : `Patvirtinti visus ≥90% (${highConf})`}
           </button>
           <button
             onClick={downloadCsv}
             disabled={items.length === 0}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            className="px-4 py-2 rounded-none border-2 border-[#1a1a1a] font-bold uppercase tracking-wider text-xs text-[#1a1a1a] hover:bg-[#f4f4f0] disabled:opacity-40 transition-colors"
           >
             Atsisiųsti CSV
           </button>
           <button
             onClick={() => fetchQueue(token)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 rounded-none border-2 border-[#1a1a1a] font-bold uppercase tracking-wider text-xs text-[#1a1a1a] hover:bg-[#f4f4f0] transition-colors"
           >
             Atnaujinti
           </button>
@@ -211,25 +211,25 @@ export default function MappingsPage() {
 
       {/* Create-new inline form */}
       {creatingId !== null && (
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-3">
-          <span className="text-sm font-medium text-blue-800 whitespace-nowrap">Naujas kanoninis pavadinimas:</span>
+        <div className="mb-4 p-4 bg-[#f4f4f0] border-2 border-[#1a1a1a] flex items-center gap-3">
+          <span className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#1a1a1a] whitespace-nowrap">Naujas kanoninis pavadinimas:</span>
           <input
             autoFocus
             value={createName}
             onChange={e => setCreateName(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') confirmCreate(); if (e.key === 'Escape') setCreatingId(null); }}
-            className="flex-1 px-3 py-1.5 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="flex-1 px-3 py-1.5 rounded-none border border-[#e5e5e0] bg-white text-sm text-[#1a1a1a] focus:outline-none focus:border-[#1a1a1a]"
           />
           <button
             onClick={confirmCreate}
             disabled={busyIds.has(creatingId)}
-            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="px-3 py-1.5 bg-[#1a1a1a] text-white rounded-none border-2 border-[#1a1a1a] font-bold uppercase tracking-wider text-xs hover:bg-[#333] disabled:opacity-50 transition-colors"
           >
             Sukurti
           </button>
           <button
             onClick={() => setCreatingId(null)}
-            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            className="px-3 py-1.5 rounded-none border-2 border-[#1a1a1a] font-bold uppercase tracking-wider text-xs text-[#1a1a1a] hover:bg-[#f4f4f0] transition-colors"
           >
             Atšaukti
           </button>
@@ -237,16 +237,16 @@ export default function MappingsPage() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      <div className="bg-[#fdfdfc] rounded-none border-2 border-[#1a1a1a] overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-xs text-gray-400 bg-gray-50 border-b border-gray-100">
-              <th className="px-4 py-2 text-left font-medium">Laboratorija</th>
-              <th className="px-4 py-2 text-left font-medium">Originalus pavadinimas</th>
-              <th className="px-4 py-2 text-left font-medium">AI komentaras</th>
-              <th className="px-4 py-2 text-left font-medium">Siūloma atitiktis</th>
-              <th className="px-4 py-2 text-right font-medium">Tikimybė</th>
-              <th className="px-4 py-2 text-right font-medium">Veiksmai</th>
+            <tr className="font-mono text-[11px] uppercase tracking-wider text-[#8a8a82] bg-[#f4f4f0] border-b-2 border-[#1a1a1a]">
+              <th className="px-4 py-2 text-left font-bold">Laboratorija</th>
+              <th className="px-4 py-2 text-left font-bold">Originalus pavadinimas</th>
+              <th className="px-4 py-2 text-left font-bold">AI komentaras</th>
+              <th className="px-4 py-2 text-left font-bold">Siūloma atitiktis</th>
+              <th className="px-4 py-2 text-right font-bold">Tikimybė</th>
+              <th className="px-4 py-2 text-right font-bold">Veiksmai</th>
             </tr>
           </thead>
           <tbody>
@@ -254,23 +254,23 @@ export default function MappingsPage() {
               const conf = item.ai_confidence ?? 0;
               const busy = busyIds.has(item.id);
               const confColor = conf >= 0.90
-                ? 'text-green-700 bg-green-50'
+                ? 'text-[#059669] bg-[#ecfdf5]'
                 : conf >= 0.70
-                ? 'text-yellow-700 bg-yellow-50'
-                : 'text-red-700 bg-red-50';
+                ? 'text-[#856d2b] bg-[#fffcf0]'
+                : 'text-red-600 bg-red-50';
 
               return (
-                <tr key={item.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                  <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-700">
+                <tr key={item.id} className="border-b border-[#e5e5e0] last:border-0 hover:bg-[#f4f4f0]">
+                  <td className="px-4 py-3 whitespace-nowrap font-medium text-[#1a1a1a]">
                     {item.labs?.name ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-gray-800 max-w-xs">
+                  <td className="px-4 py-3 text-[#1a1a1a] max-w-xs">
                     <span className="line-clamp-2">{item.raw_name}</span>
                     {item.price_eur && (
-                      <span className="text-xs text-gray-400 mt-0.5 block">€{Number(item.price_eur).toFixed(2)}</span>
+                      <span className="font-mono text-[10px] text-[#8a8a82] mt-0.5 block">€{Number(item.price_eur).toFixed(2)}</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs max-w-xs">
+                  <td className="px-4 py-3 font-mono text-[11px] text-[#8a8a82] max-w-xs">
                     <span className="line-clamp-2">{item.ai_reasoning ?? '—'}</span>
                   </td>
                   <td className="px-4 py-3 max-w-xs">
@@ -279,17 +279,17 @@ export default function MappingsPage() {
                         href={`/test/${item.tests.id}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-blue-600 hover:text-blue-800 hover:underline text-xs line-clamp-2"
+                        className="text-[#1a1a1a] hover:text-[#8a8a82] hover:underline font-mono text-[11px] line-clamp-2"
                       >
                         {item.tests.canonical_name_lt}
                       </a>
                     ) : (
-                      <span className="text-xs text-gray-400 italic">—</span>
+                      <span className="font-mono text-[11px] text-[#8a8a82]">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     {item.ai_confidence != null ? (
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium tabular-nums ${confColor}`}>
+                      <span className={`inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 tabular-nums ${confColor}`}>
                         {(conf * 100).toFixed(0)}%
                       </span>
                     ) : '—'}
@@ -300,7 +300,7 @@ export default function MappingsPage() {
                         <button
                           onClick={() => handleApprove(item)}
                           disabled={busy}
-                          className="px-2.5 py-1 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 disabled:opacity-40 transition-colors"
+                          className="px-2.5 py-1 bg-[#059669] text-white rounded-none border border-[#059669] font-mono text-[10px] uppercase tracking-wider hover:bg-[#047857] disabled:opacity-40 transition-colors"
                         >
                           Patvirtinti
                         </button>
@@ -308,14 +308,14 @@ export default function MappingsPage() {
                       <button
                         onClick={() => startCreate(item)}
                         disabled={busy}
-                        className="px-2.5 py-1 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 disabled:opacity-40 transition-colors"
+                        className="px-2.5 py-1 bg-[#1a1a1a] text-white rounded-none border border-[#1a1a1a] font-mono text-[10px] uppercase tracking-wider hover:bg-[#333] disabled:opacity-40 transition-colors"
                       >
                         Naujas
                       </button>
                       <button
                         onClick={() => handleSkip(item)}
                         disabled={busy}
-                        className="px-2.5 py-1 border border-gray-300 text-gray-600 rounded text-xs font-medium hover:bg-gray-50 disabled:opacity-40 transition-colors"
+                        className="px-2.5 py-1 rounded-none border border-[#e5e5e0] text-[#8a8a82] font-mono text-[10px] uppercase tracking-wider hover:border-[#1a1a1a] hover:text-[#1a1a1a] disabled:opacity-40 transition-colors"
                       >
                         Praleisti
                       </button>
@@ -326,7 +326,7 @@ export default function MappingsPage() {
             })}
             {items.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-gray-400 text-sm">
+                <td colSpan={6} className="px-4 py-12 text-center font-mono text-[11px] text-[#8a8a82]">
                   Nėra laukiančių peržiūros ✓
                 </td>
               </tr>
