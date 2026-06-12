@@ -654,29 +654,6 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
         </div>
       </div>
 
-      {/* Promo bar */}
-      {labs.length > 0 && (
-        <div className="border-2 border-[#1a1a1a] p-5 text-[#1a1a1a] bg-[#fffcf0] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-[4px_4px_0px_0px_#1a1a1a]">
-          <div className="flex items-start md:items-center gap-3.5">
-            <div className="p-2.5 bg-[#1a1a1a] text-[#fffcf0] shrink-0">
-              <span className="text-base">✦</span>
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#1a1a1a] font-mono">Sumanios sveikatos patarimas · Lietuvos rinka</h4>
-              <p className="text-sm text-[#3a3a35] leading-relaxed">
-                Palyginkite <span className="font-bold text-[#1a1a1a]">{totalTests} tyrimų</span> kainas tarp {labs.length} laboratorijų ir raskite pigiausią variantą. Atnaujinta: <span className="font-mono font-bold">{lastUpdated || '—'}</span>.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => setActiveTab('comparison')}
-            className="text-xs font-bold px-5 py-3 bg-[#1a1a1a] text-white hover:bg-[#333] rounded-none shadow-[2px_2px_0px_0px_#8a8a82] shrink-0 transition-all flex items-center gap-1.5 uppercase tracking-wider"
-          >
-            Palyginti kainas <Ic.Right c="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
       {/* Tab navigation */}
       <div className="flex xl:flex-row flex-col xl:items-center justify-between gap-4 border-b-2 border-[#1a1a1a] pb-3">
         <div className="flex flex-wrap gap-2">
@@ -823,37 +800,18 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                 </div>
               </div>
 
-              {/* Search + sort */}
-              <div className="flex flex-col md:flex-row gap-4 items-center">
-                <div className="relative w-full md:flex-1">
-                  <Ic.Search c="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8a8a82]" />
-                  <input
-                    type="text"
-                    placeholder="Ieškoti tyrimo (pvz.: BKT, Vitaminas D, skydliaukė...)"
-                    aria-label="Ieškoti tyrimo"
-                    className="w-full pl-11 pr-4 py-3 bg-[#f4f4f0] border border-[#e5e5e0] rounded-none text-sm placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white transition"
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                  />
-                  {searchTerm && (
-                    <button onClick={() => setSearchTerm('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold px-2 py-1 bg-[#1a1a1a] text-white rounded-none">
-                      Išvalyti
-                    </button>
-                  )}
+              {/* Sort */}
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="flex items-center gap-1.5 px-3 py-2 bg-[#f4f4f0] border border-[#e5e5e0] text-[#1a1a1a] text-xs font-mono rounded-none shrink-0">
+                  <Ic.Filter c="w-3.5 h-3.5" /> <span>Rūšiuoti:</span>
                 </div>
-                <div className="flex gap-2 w-full md:w-auto overflow-x-auto shrink-0 pb-1 md:pb-0">
-                  <div className="flex items-center gap-1.5 px-3 py-2 bg-[#f4f4f0] border border-[#e5e5e0] text-[#1a1a1a] text-xs font-mono rounded-none">
-                    <Ic.Filter c="w-3.5 h-3.5" /> <span>Rūšiuoti:</span>
-                  </div>
-                  {([['name', 'A–Ž'], ['cheapest', 'Pigiausius'], ['savings', 'Didžiausią skirtumą']] as const).map(([val, label]) => (
-                    <button key={val} onClick={() => setSortBy(val)}
-                      className={`px-3.5 py-2 text-xs font-bold rounded-none border transition uppercase tracking-wider ${
-                        sortBy === val ? 'bg-[#1a1a1a] border-[#1a1a1a] text-white' : 'bg-white border-[#e5e5e0] text-[#63635e] hover:border-[#1a1a1a]'
-                      }`}>{label}
-                    </button>
-                  ))}
-                </div>
+                {([['name', 'A–Ž'], ['cheapest', 'Pigiausius'], ['savings', 'Didžiausią skirtumą']] as const).map(([val, label]) => (
+                  <button key={val} onClick={() => setSortBy(val)}
+                    className={`px-3.5 py-2 text-xs font-bold rounded-none border transition uppercase tracking-wider shrink-0 ${
+                      sortBy === val ? 'bg-[#1a1a1a] border-[#1a1a1a] text-white' : 'bg-white border-[#e5e5e0] text-[#63635e] hover:border-[#1a1a1a]'
+                    }`}>{label}
+                  </button>
+                ))}
               </div>
 
               {/* Category pills */}
