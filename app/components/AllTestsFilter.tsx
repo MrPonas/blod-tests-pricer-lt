@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import Fuse from 'fuse.js';
 import type { TestWithPrices, Category } from '@/lib/types';
+import { useSearchIndex, type SearchEntry } from '@/app/hooks/useSearchIndex';
 
 interface Props {
   tests: TestWithPrices[];
@@ -13,46 +13,37 @@ interface Props {
 export default function AllTestsFilter({ tests, categories }: Props) {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { search, ready } = useSearchIndex();
 
-  const fuse = useMemo(() => new Fuse(tests, {
-    keys: [
-      { name: 'canonical_name_lt', weight: 3 },
-      { name: 'canonical_name_en', weight: 2 },
-      { name: 'aliases', weight: 1.5 },
-    ],
-    threshold: 0.35,
-    ignoreLocation: true,
-    minMatchCharLength: 2,
-  }), [tests]);
+  const searchResults = useMemo<SearchEntry[]>(() => {
+    if (!query.trim() || !ready) return [];
+    const results = search(query.trim(), 200);
+    return activeCategory ? results.filter(r => r.category === activeCategory) : results;
+  }, [query, ready, search, activeCategory]);
 
-  const filtered = useMemo(() => {
-    if (query.trim()) {
-      const results = fuse.search(query.trim(), { limit: 200 }).map(r => r.item);
-      return activeCategory ? results.filter(t => t.category?.slug === activeCategory) : results;
-    }
-    return activeCategory
-      ? tests.filter(t => t.category?.slug === activeCategory)
-      : tests;
-  }, [tests, query, activeCategory, fuse]);
+  const filteredByCategory = useMemo(() => {
+    return activeCategory ? tests.filter(t => t.category?.slug === activeCategory) : tests;
+  }, [tests, activeCategory]);
 
-  // Group by first letter only when not filtering by text
   const showGrouped = !query.trim();
 
   const byLetter = useMemo(() => {
-    const map: Record<string, typeof filtered> = {};
-    filtered.forEach((t) => {
+    const map: Record<string, typeof filteredByCategory> = {};
+    filteredByCategory.forEach((t) => {
       const letter = t.canonical_name_lt[0].toUpperCase();
       if (!map[letter]) map[letter] = [];
       map[letter].push(t);
     });
     return map;
-  }, [filtered]);
+  }, [filteredByCategory]);
 
   const letters = Object.keys(byLetter).sort();
 
   const totalWithPrices = tests.filter((t) =>
     t.prices.some((p) => !p.is_stale && Number(p.price_eur) > 0)
   ).length;
+
+  const displayCount = query.trim() ? searchResults.length : filteredByCategory.length;
 
   return (
     <>
@@ -63,6 +54,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Ieškoti sąraše..."
+          aria-label="Ieškoti tyrimo"
           className="w-full sm:w-80 px-4 py-2 rounded-none border border-[#e5e5e0] bg-[#f4f4f0] text-sm text-[#1a1a1a] placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white"
         />
 
@@ -73,7 +65,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
               className={`px-3 py-1 rounded-none font-mono text-[11px] font-bold uppercase tracking-widest border transition-colors ${
                 activeCategory === null
                   ? 'bg-[#1a1a1a] border-[#1a1a1a] text-white'
-                  : 'border-[#e5e5e0] bg-[#f4f4f0] text-[#63635e] hover:border-[#1a1a1a] hover:text-[#1a1a1a]'
+                  : 'border-[#e5e5e0] bg-[#f4f4f0] text-[#8a8a82] hover:border-[#1a1a1a] hover:text-[#1a1a1a]'
               }`}
             >
               Visi
@@ -85,7 +77,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
                 className={`px-3 py-1 rounded-none font-mono text-[11px] font-bold uppercase tracking-widest border transition-colors ${
                   activeCategory === cat.slug
                     ? 'bg-[#1a1a1a] border-[#1a1a1a] text-white'
-                    : 'border-[#e5e5e0] bg-[#f4f4f0] text-[#63635e] hover:border-[#1a1a1a] hover:text-[#1a1a1a]'
+                    : 'border-[#e5e5e0] bg-[#f4f4f0] text-[#8a8a82] hover:border-[#1a1a1a] hover:text-[#1a1a1a]'
                 }`}
               >
                 {cat.icon} {cat.name_lt}
@@ -96,18 +88,50 @@ export default function AllTestsFilter({ tests, categories }: Props) {
       </div>
 
       <p className="font-mono text-[11px] text-[#8a8a82] uppercase tracking-wider mb-4">
-        {filtered.length !== tests.length
-          ? `${filtered.length} iš ${tests.length} tyrimų`
+        {displayCount !== tests.length
+          ? `${displayCount} iš ${tests.length} tyrimų`
           : `${tests.length} tyrimų · ${totalWithPrices} su kainomis`
         }
       </p>
 
-      {filtered.length === 0 ? (
+      {displayCount === 0 ? (
         <div className="text-center py-14 text-[#8a8a82]">
           <p className="text-3xl mb-3">🔍</p>
-          <p className="text-sm">Nerasta tyrimų pagal paiešką</p>
+          <p className="text-sm text-[#1a1a1a]">Nerasta tyrimų pagal paiešką</p>
         </div>
-      ) : showGrouped ? (
+      ) : !showGrouped ? (
+        <div className="bg-[#fdfdfc] rounded-none border-2 border-[#1a1a1a] divide-y divide-[#e5e5e0]">
+          {searchResults.map((entry) => (
+            <div key={entry.id} className="flex items-center gap-3 px-4 py-2.5">
+              <div className="min-w-0 flex-1">
+                <Link href={`/test/${entry.id}`} className="text-sm text-[#1a1a1a] hover:text-[#8a8a82] transition-colors">
+                  {entry.name_lt}
+                </Link>
+                {entry.name_en && (
+                  <span className="ml-2 font-mono text-[10px] text-[#8a8a82]">{entry.name_en}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {entry.category && (
+                  <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider text-[#8a8a82] bg-[#f4f4f0] border border-[#e5e5e0] px-2 py-0.5">
+                    {entry.category}
+                  </span>
+                )}
+                {entry.lab_count >= 2 && (
+                  <span className="font-mono text-[10px] text-[#8a8a82] tabular-nums">{entry.lab_count} lab.</span>
+                )}
+                {entry.min_price !== null ? (
+                  <span className="font-mono font-bold text-[#059669] tabular-nums w-16 text-right text-sm">
+                    €{entry.min_price.toFixed(2)}
+                  </span>
+                ) : (
+                  <span className="font-mono text-[#8a8a82] w-16 text-right text-xs">—</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
         <>
           {/* Letter index */}
           <div className="flex flex-wrap gap-1.5 mb-8">
@@ -115,7 +139,7 @@ export default function AllTestsFilter({ tests, categories }: Props) {
               <a
                 key={letter}
                 href={`#letter-${letter}`}
-                className="w-8 h-8 flex items-center justify-center rounded-none border border-[#e5e5e0] bg-[#f4f4f0] font-mono font-bold text-[11px] text-[#63635e] hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-none border border-[#e5e5e0] bg-[#f4f4f0] font-mono font-bold text-[11px] text-[#8a8a82] hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
               >
                 {letter}
               </a>
@@ -133,41 +157,6 @@ export default function AllTestsFilter({ tests, categories }: Props) {
             ))}
           </div>
         </>
-      ) : (
-        <div className="bg-[#fdfdfc] rounded-none border-2 border-[#1a1a1a] divide-y divide-[#e5e5e0]">
-          {filtered.map((test) => {
-            const activePrices = test.prices.filter((p) => !p.is_stale && Number(p.price_eur) > 0);
-            const minPrice = activePrices.length > 0
-              ? Math.min(...activePrices.map((p) => Number(p.price_eur)))
-              : null;
-            return (
-              <div key={test.id} className="flex items-center gap-3 px-4 py-2.5">
-                <div className="min-w-0 flex-1">
-                  <Link href={`/test/${test.id}`} className="text-sm text-[#1a1a1a] hover:text-[#8a8a82] transition-colors">
-                    {test.canonical_name_lt}
-                  </Link>
-                  {test.canonical_name_en && (
-                    <span className="ml-2 font-mono text-[10px] text-[#8a8a82]">{test.canonical_name_en}</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {test.category && (
-                    <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider text-[#8a8a82] bg-[#f4f4f0] border border-[#e5e5e0] px-2 py-0.5">
-                      {test.category.icon} {test.category.name_lt}
-                    </span>
-                  )}
-                  {minPrice !== null ? (
-                    <span className="font-mono font-bold text-[#059669] tabular-nums w-16 text-right text-sm">
-                      €{minPrice.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span className="font-mono text-[#8a8a82] w-16 text-right text-xs">—</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
       )}
     </>
   );

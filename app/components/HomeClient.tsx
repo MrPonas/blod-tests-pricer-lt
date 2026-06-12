@@ -428,6 +428,7 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
   const [cityFilter, setCityFilter] = useState('Vilnius');
   const [locLabFilter, setLocLabFilter] = useState<string | null>(null);
   const [cartExpandedId, setCartExpandedId] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(50);
   const { search: fuseSearch, ready: fuseReady } = useSearchIndex();
 
   // ── Derived: active labs ───────────────────────────────────────────────────
@@ -493,6 +494,11 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
 
     return result;
   }, [tests, searchTerm, fuseReady, fuseSearch, selectedCategory, sortBy, visibleLabs]);
+
+  const visibleTests = filteredTests.slice(0, visibleCount);
+
+  // Reset pagination when filters change
+  useEffect(() => { setVisibleCount(50); }, [searchTerm, selectedCategory, sortBy, visibleLabs]);
 
   // ── Cart computations ──────────────────────────────────────────────────────
   const cartTests = useMemo(() => tests.filter(t => cartItems.includes(t.id)), [tests, cartItems]);
@@ -884,7 +890,7 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                     <p className="text-xs text-[#8a8a82] max-w-sm mx-auto">Pabandykite trumpesnį pavadinimą arba pasirinkite kitą kategoriją.</p>
                   </div>
                 ) : (
-                  filteredTests.map(test => {
+                  visibleTests.map(test => {
                     const prices = activeLabs.map(l => test.prices[l.id]).filter(p => (p ?? 0) > 0);
                     const minPrice = prices.length ? Math.min(...prices) : 0;
                     const maxPrice = prices.length ? Math.max(...prices) : 0;
@@ -1069,6 +1075,20 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                   })
                 )}
               </div>
+
+              {filteredTests.length > visibleCount && (
+                <div className="border-t-2 border-[#1a1a1a] px-6 py-4 bg-[#f4f4f0] flex items-center justify-between gap-4">
+                  <span className="font-mono text-[11px] text-[#8a8a82] uppercase tracking-wider">
+                    Rodoma {visibleCount} iš {filteredTests.length}
+                  </span>
+                  <button
+                    onClick={() => setVisibleCount(c => c + 50)}
+                    className="px-5 py-2 bg-[#1a1a1a] text-white font-mono font-bold text-[11px] uppercase tracking-wider hover:bg-[#333] transition-colors"
+                  >
+                    Rodyti daugiau →
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -32,7 +32,7 @@ function loadIndex(onReady: (fuse: Fuse<SearchEntry>) => void): void {
           { name: 'name_en', weight: 2 },
           { name: 'aliases', weight: 1.5 },
         ],
-        threshold: 0.35,
+        threshold: 0.28,
         includeScore: true,
         ignoreLocation: true,
         minMatchCharLength: 2,
