@@ -46,9 +46,9 @@ export default function PriceTable({ prices, labs }: Props) {
       <div className="hidden sm:flex items-center px-5 py-2 border-b-2 border-[#1a1a1a] bg-[#f4f4f0] font-mono font-bold text-[11px] uppercase tracking-wider text-[#8a8a82] gap-4">
         <span className="w-4 flex-shrink-0" />
         <span className="flex-1">Laboratorija</span>
-        <span className="w-24 text-right">Kaina</span>
-        {showBars && <span className="w-28 hidden md:block" />}
-        <span className="w-20 text-right hidden sm:block">Skirtumas</span>
+        <span className="w-24 text-right flex-shrink-0">Kaina</span>
+        {showBars && <span className="w-28 hidden md:block flex-shrink-0" />}
+        <span className="w-24 text-right hidden sm:block flex-shrink-0">Skirtumas</span>
         <span className="w-24 flex-shrink-0" />
       </div>
 
@@ -80,10 +80,16 @@ export default function PriceTable({ prices, labs }: Props) {
                     <div className="font-mono text-[10px] text-[#8a8a82] mt-0.5">atnaujinta {formatDate(price.scraped_at)}</div>
                   )}
                 </div>
-                <div className="w-24 text-right flex-shrink-0">
-                  <span className={`font-mono font-bold tabular-nums text-base ${isCheapest ? 'text-[#059669]' : 'text-[#1a1a1a]'}`}>
+                {/* KAINA: price + Pigiausia badge stacked — badge stays in this column, never overlaps button */}
+                <div className="w-24 flex-shrink-0 flex flex-col items-end gap-1">
+                  <span className={`font-mono font-bold tabular-nums text-base leading-none ${isCheapest ? 'text-[#059669]' : 'text-[#1a1a1a]'}`}>
                     €{priceNum.toFixed(2)}
                   </span>
+                  {isCheapest && activePrices.length > 1 && (
+                    <span className="rounded-none bg-[#ecfdf5] border border-[#a7f3d0] text-[#059669] font-mono font-bold text-[9px] uppercase tracking-wider px-1.5 py-0.5 whitespace-nowrap">
+                      Pigiausia
+                    </span>
+                  )}
                 </div>
                 {showBars && (
                   <div className="w-28 hidden md:flex items-center flex-shrink-0">
@@ -95,12 +101,8 @@ export default function PriceTable({ prices, labs }: Props) {
                     </div>
                   </div>
                 )}
-                <div className="w-20 text-right flex-shrink-0">
-                  {isCheapest && activePrices.length > 1 && (
-                    <span className="rounded-none bg-[#ecfdf5] border border-[#a7f3d0] text-[#059669] font-mono font-bold text-[9px] uppercase tracking-wider px-1.5 py-0.5 whitespace-nowrap">
-                      Pigiausia
-                    </span>
-                  )}
+                {/* SKIRTUMAS: diff only, badge removed from here */}
+                <div className="w-24 text-right flex-shrink-0">
                   {diff !== null && (
                     <span className="font-mono text-xs text-[#8a8a82] tabular-nums whitespace-nowrap">+€{diff.toFixed(2)}</span>
                   )}
@@ -117,7 +119,7 @@ export default function PriceTable({ prices, labs }: Props) {
                           : 'border-[#1a1a1a] text-[#1a1a1a] bg-white hover:bg-[#f4f4f0]'
                       }`}
                     >
-                      Registruotis
+                      Užsakyti
                     </Link>
                   ) : <span />}
                 </div>
@@ -162,7 +164,7 @@ export default function PriceTable({ prices, labs }: Props) {
                         : 'border-[#1a1a1a] text-[#1a1a1a] bg-white hover:bg-[#f4f4f0]'
                     }`}
                   >
-                    Registruotis
+                    Užsakyti
                   </Link>
                 )}
               </div>

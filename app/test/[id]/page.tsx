@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import PriceTable from '@/app/components/PriceTable';
 import ShareButton from '@/app/components/ShareButton';
+import { getDisplayName, isProcedure } from '@/lib/utils';
 
 export const revalidate = 86400;
 
@@ -52,7 +53,9 @@ export default async function TestPage({ params }: PageProps) {
     getPriceHistory(Number(id)),
   ]);
   if (!test) notFound();
-  const related = test.category?.id ? await getRelatedTests(test.category.id, Number(id), 6) : [];
+  const relatedRaw = test.category?.id ? await getRelatedTests(test.category.id, Number(id), 10) : [];
+  const related = relatedRaw.filter(r => !isProcedure(r.canonical_name_lt)).slice(0, 6);
+  const displayName = getDisplayName(test.canonical_name_lt, test.aliases);
   // Warn about labs that have a price but no booking URL at all (not even lab-level)
   for (const p of test.prices.filter(p => !p.is_stale && Number(p.price_eur) > 0)) {
     if (!p.lab_test_url && !p.lab?.booking_url) {
@@ -91,12 +94,12 @@ export default async function TestPage({ params }: PageProps) {
           </>
         )}
         <span>/</span>
-        <span className="text-[#1a1a1a] truncate max-w-xs">{test.canonical_name_lt}</span>
+        <span className="text-[#1a1a1a] truncate max-w-xs">{displayName}</span>
       </nav>
 
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h1 className="font-serif italic font-bold text-3xl text-[#1a1a1a]">{test.canonical_name_lt}</h1>
+          <h1 className="font-serif italic font-bold text-3xl text-[#1a1a1a]">{displayName}</h1>
           {test.canonical_name_en && (
             <p className="text-[#8a8a82] text-sm mt-0.5">{test.canonical_name_en}</p>
           )}
@@ -230,7 +233,7 @@ export default async function TestPage({ params }: PageProps) {
                 href={`/test/${r.id}`}
                 className="px-3 py-1.5 rounded-none border-2 border-[#1a1a1a] bg-white hover:bg-[#f4f4f0] font-mono text-[11px] text-[#1a1a1a] transition-colors"
               >
-                {r.canonical_name_lt}
+                {getDisplayName(r.canonical_name_lt)}
               </Link>
             ))}
           </div>

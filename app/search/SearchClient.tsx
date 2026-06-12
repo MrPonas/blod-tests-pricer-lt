@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSearchIndex, type SearchEntry } from '@/app/hooks/useSearchIndex';
+import { getDisplayName } from '@/lib/utils';
 
 interface Props {
   initialQuery: string;
@@ -107,7 +108,7 @@ export default function SearchClient({ initialQuery }: Props) {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-[#1a1a1a] font-medium group-hover:text-[#8a8a82] transition-colors">
-                    {entry.name_lt}
+                    {getDisplayName(entry.name_lt, entry.aliases)}
                   </p>
                   {entry.name_en && (
                     <p className="font-mono text-[10px] text-[#8a8a82] mt-0.5">{entry.name_en}</p>

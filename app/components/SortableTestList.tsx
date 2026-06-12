@@ -6,6 +6,7 @@ import Link from 'next/link';
 import PriceTable from './PriceTable';
 import FilterBar, { type SortKey } from './FilterBar';
 import type { TestWithPrices, Lab } from '@/lib/types';
+import { getDisplayName } from '@/lib/utils';
 
 interface Props {
   tests: TestWithPrices[];
@@ -135,7 +136,7 @@ export default function SortableTestList({
                   href={`/test/${test.id}`}
                   className="font-medium text-[#1a1a1a] hover:text-[#8a8a82] transition-colors text-sm leading-snug"
                 >
-                  {test.canonical_name_lt}
+                  {getDisplayName(test.canonical_name_lt, test.aliases)}
                 </Link>
                 {test.canonical_name_en && (
                   <span className="font-mono text-[10px] text-[#8a8a82]">{test.canonical_name_en}</span>

@@ -1,5 +1,6 @@
 import { getCategories, getLabs, getAllTests } from '@/lib/db';
 import HomeClient, { type TestUI, type LabUI, type CategoryUI } from './components/HomeClient';
+import { getDisplayName, isProcedure } from '@/lib/utils';
 
 export const revalidate = 86400;
 
@@ -54,7 +55,7 @@ export default async function HomePage() {
     ...categories.map(c => ({ id: c.slug, name: c.name_lt, icon: c.icon })),
   ];
 
-  const testsUI: TestUI[] = allTests.map(test => {
+  const testsUI: TestUI[] = allTests.filter(test => !isProcedure(test.canonical_name_lt)).map(test => {
     const prices: Record<string, number> = {};
     const bookingUrls: Record<string, string | null> = {};
 
@@ -76,7 +77,7 @@ export default async function HomePage() {
 
     return {
       id: String(test.id),
-      name: test.canonical_name_lt,
+      name: getDisplayName(test.canonical_name_lt, test.aliases),
       latinName: test.canonical_name_en,
       code: makeCode(test.canonical_name_lt, test.canonical_name_en),
       category: test.category?.slug ?? 'kita',

@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const labs = await getLabs().catch(() => []);
+  const sha = (process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || process.env.NEXT_PUBLIC_GIT_SHA || 'local');
+  const buildTime = process.env.NEXT_PUBLIC_BUILD_TIME || new Date().toISOString().split('T')[0];
   return (
     <html lang="lt">
       <body className="min-h-screen flex flex-col">
@@ -29,8 +31,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div className="flex items-center gap-4 sm:gap-6">
               <HeaderSearch />
               <nav className="hidden sm:flex items-center gap-5">
-                <Link href="/tests" className="font-mono text-[11px] font-bold uppercase tracking-widest text-[#8a8a82] hover:text-[#1a1a1a] transition-colors">Visi tyrimai</Link>
-                <Link href="/about" className="font-mono text-[11px] font-bold uppercase tracking-widest text-[#8a8a82] hover:text-[#1a1a1a] transition-colors">Apie</Link>
+                <Link href="/tests" className="font-mono text-[11px] font-bold uppercase tracking-widest text-[#8a8a82] hover:text-[#1a1a1a] transition-colors whitespace-nowrap shrink-0">Visi tyrimai</Link>
+                <Link href="/about" className="font-mono text-[11px] font-bold uppercase tracking-widest text-[#8a8a82] hover:text-[#1a1a1a] transition-colors whitespace-nowrap shrink-0">Apie</Link>
               </nav>
             </div>
           </div>
@@ -98,7 +100,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <div className="flex items-center justify-center sm:justify-end gap-1.5">
                   <span className="inline-flex h-1.5 w-1.5 rounded-full bg-[#8a8a82]" title="Duomenys atnaujinti" />
                   <span className="font-mono text-[10px] text-[#8a8a82]">
-                    {process.env.NEXT_PUBLIC_GIT_SHA} · {process.env.NEXT_PUBLIC_BUILD_TIME}
+                    {sha} · {buildTime}
                   </span>
                 </div>
               </div>

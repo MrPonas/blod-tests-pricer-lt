@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchIndex } from '@/app/hooks/useSearchIndex';
+import { getDisplayName } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -660,7 +661,7 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                     className="flex items-center justify-between px-4 py-2.5 hover:bg-[#f4f4f0] transition-colors group"
                   >
                     <div className="min-w-0">
-                      <span className="text-sm text-[#1a1a1a] font-medium group-hover:text-[#059669] transition-colors">{hit.name_lt}</span>
+                      <span className="text-sm text-[#1a1a1a] font-medium group-hover:text-[#059669] transition-colors">{getDisplayName(hit.name_lt, hit.aliases)}</span>
                       {hit.name_en && <span className="ml-2 font-mono text-[10px] text-[#8a8a82]">{hit.name_en}</span>}
                     </div>
                     {hit.min_price !== null && (
@@ -922,8 +923,8 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                               </button>
                               <div className="space-y-0.5">
                                 <div className="flex flex-wrap items-center gap-1.5">
-                                  <span onClick={() => toggleExpand(test.id)}
-                                    className="font-bold text-[#1a1a1a] hover:text-[#059669] cursor-pointer text-sm leading-snug transition-colors">
+                                  <span onClick={() => toggleExpand(test.id)} title={test.name}
+                                    className="font-bold text-[#1a1a1a] hover:text-[#059669] cursor-pointer text-sm leading-snug transition-colors truncate max-w-[220px] block">
                                     {test.name}
                                   </span>
                                   {test.code !== '—' && (
@@ -1031,8 +1032,8 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                                         </div>
                                         {url && (
                                           <a href={url} target="_blank" rel="noopener noreferrer"
-                                            className="text-[#059669] hover:text-[#047857] font-bold hover:underline uppercase tracking-wide text-[10px] shrink-0">
-                                            Svetainė ↗
+                                            className="shrink-0 px-3 py-1 bg-[#059669] hover:bg-[#047857] text-white font-bold uppercase tracking-wider text-[9px] transition-colors whitespace-nowrap">
+                                            Registruotis →
                                           </a>
                                         )}
                                       </div>
