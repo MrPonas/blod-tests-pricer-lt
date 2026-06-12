@@ -29,6 +29,7 @@ export interface LabUI {
 export interface CategoryUI {
   id: string;
   name: string;
+  icon?: string | null;
 }
 
 interface HistoryPoint {
@@ -632,6 +633,12 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
             className="w-full pl-11 pr-10 py-3.5 bg-[#f4f4f0] border-2 border-[#e5e5e0] rounded-none text-sm placeholder-[#8a8a82] focus:outline-none focus:border-[#1a1a1a] focus:bg-white transition text-[#1a1a1a]"
             value={searchTerm}
             onChange={e => { setSearchTerm(e.target.value); if (activeTab !== 'comparison') setActiveTab('comparison'); }}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && fuseReady && searchTerm.trim()) {
+                const top = fuseSearch(searchTerm.trim(), 1)[0];
+                if (top) window.location.href = `/test/${top.id}`;
+              }
+            }}
           />
           {!fuseReady && (
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-[#8a8a82] border-t-transparent rounded-full animate-spin" />
@@ -642,6 +649,32 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
               ×
             </button>
           )}
+          {/* Live search dropdown */}
+          {fuseReady && searchTerm.trim().length >= 2 && (() => {
+            const hits = fuseSearch(searchTerm.trim(), 5);
+            if (hits.length === 0) return null;
+            return (
+              <div className="absolute top-full left-0 right-0 z-30 mt-0.5 bg-[#fdfdfc] border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] divide-y divide-[#e5e5e0]">
+                {hits.map(hit => (
+                  <a key={hit.id} href={`/test/${hit.id}`}
+                    className="flex items-center justify-between px-4 py-2.5 hover:bg-[#f4f4f0] transition-colors group"
+                  >
+                    <div className="min-w-0">
+                      <span className="text-sm text-[#1a1a1a] font-medium group-hover:text-[#059669] transition-colors">{hit.name_lt}</span>
+                      {hit.name_en && <span className="ml-2 font-mono text-[10px] text-[#8a8a82]">{hit.name_en}</span>}
+                    </div>
+                    {hit.min_price !== null && (
+                      <span className="font-mono font-bold text-[#059669] text-sm tabular-nums ml-4 shrink-0">€{hit.min_price.toFixed(2)}</span>
+                    )}
+                  </a>
+                ))}
+                <a href={`/search?q=${encodeURIComponent(searchTerm.trim())}`}
+                  className="flex items-center justify-center px-4 py-2 bg-[#f4f4f0] hover:bg-[#e5e5e0] transition-colors font-mono text-[11px] text-[#8a8a82] uppercase tracking-wider">
+                  Visos paieškos rezultatai →
+                </a>
+              </div>
+            );
+          })()}
         </div>
         {/* Popular tests chips */}
         <div className="space-y-2">
@@ -659,6 +692,23 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
           </div>
         </div>
       </div>
+
+      {/* Category grid */}
+      {categories.length > 0 && (
+        <div className="space-y-3">
+          <p className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#8a8a82]">Kategorijos:</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+            {categories.slice(0, 8).map(cat => (
+              <a key={cat.id} href={`/category/${cat.id}`}
+                className="flex items-center gap-2.5 px-4 py-3 bg-[#fdfdfc] border-2 border-[#1a1a1a] hover:bg-[#f4f4f0] transition-colors group"
+              >
+                {cat.icon && <span className="text-lg shrink-0">{cat.icon}</span>}
+                <span className="font-mono text-[11px] font-bold text-[#1a1a1a] uppercase tracking-wider leading-tight group-hover:text-[#059669] transition-colors">{cat.name}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tab navigation */}
       <div className="flex xl:flex-row flex-col xl:items-center justify-between gap-4 border-b-2 border-[#1a1a1a] pb-3">
@@ -698,48 +748,6 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
         {/* ── COMPARISON TAB ── */}
         {activeTab === 'comparison' && (
           <div className="space-y-6">
-
-            {/* Preset packages */}
-            <div className="bg-[#fffcf0] border-2 border-[#1a1a1a] p-5 space-y-4 shadow-[4px_4px_0px_0px_#1a1a1a]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-yellow-200 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 bg-[#1a1a1a] text-[#fffcf0] text-[10px] font-mono uppercase font-black tracking-wider">✦ Ruošiniai</span>
-                  <h3 className="text-sm font-bold text-[#1a1a1a] uppercase tracking-wider">Populiarūs tyrimų paketo ruošiniai:</h3>
-                </div>
-                <span className="text-[10px] text-[#8a8a82] italic">Spustelkite, kad akimirksniu sukurtumėte tyrimų paketą</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-1">
-                {presetPackages.map(preset => {
-                  const isSelected = preset.ids.length > 0 && preset.ids.every(id => cartItems.includes(id));
-                  return (
-                    <div key={preset.name}
-                      className={`border-2 p-4 flex flex-col justify-between space-y-3 rounded-none relative overflow-hidden ${preset.color} ${isSelected ? 'border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a] bg-white' : 'border-gray-200'}`}
-                    >
-                      {isSelected && <div className="absolute top-0 right-0 bg-[#1a1a1a] text-white px-2 py-0.5 text-[8px] font-mono font-bold uppercase tracking-widest">Aktyvus</div>}
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{preset.icon}</span>
-                          <h4 className="font-extrabold text-xs text-[#1a1a1a] uppercase tracking-wide">{preset.name}</h4>
-                        </div>
-                        <p className="text-[10.5px] text-[#8a8a82] leading-snug">{preset.description}</p>
-                      </div>
-                      <div className="pt-2 border-t border-dashed border-gray-200 flex items-center justify-between gap-2.5">
-                        <div className="text-[9px] text-[#8a8a82] font-mono">({preset.ids.length} tyrimai)</div>
-                        <button
-                          onClick={() => setCartItems(preset.ids)}
-                          disabled={preset.ids.length === 0}
-                          className={`text-[9.5px] font-mono font-bold px-3 py-1.5 uppercase tracking-wider rounded-none border ${
-                            isSelected ? 'bg-[#059669] text-white border-[#059669]' : 'bg-[#1a1a1a] text-white border-[#1a1a1a] hover:bg-[#333]'
-                          } disabled:opacity-40`}
-                        >
-                          {isSelected ? '✓ Sukonstruota' : 'Užpildyti paketą'}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* Live basket meter */}
             {cartItems.length > 0 && liveTotals.length > 0 && (
@@ -1089,6 +1097,48 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* Preset packages */}
+            <div className="bg-[#fffcf0] border-2 border-[#1a1a1a] p-5 space-y-4 shadow-[4px_4px_0px_0px_#1a1a1a]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#f0e6c5] pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 bg-[#1a1a1a] text-[#fffcf0] text-[10px] font-mono uppercase font-black tracking-wider">✦ Ruošiniai</span>
+                  <h3 className="text-sm font-bold text-[#1a1a1a] uppercase tracking-wider">Populiarūs tyrimų paketo ruošiniai:</h3>
+                </div>
+                <span className="text-[10px] text-[#8a8a82] italic">Spustelkite, kad akimirksniu sukurtumėte tyrimų paketą</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-1">
+                {presetPackages.map(preset => {
+                  const isSelected = preset.ids.length > 0 && preset.ids.every(id => cartItems.includes(id));
+                  return (
+                    <div key={preset.name}
+                      className={`border-2 p-4 flex flex-col justify-between space-y-3 rounded-none relative overflow-hidden ${preset.color} ${isSelected ? 'border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a] bg-white' : 'border-[#e5e5e0]'}`}
+                    >
+                      {isSelected && <div className="absolute top-0 right-0 bg-[#1a1a1a] text-white px-2 py-0.5 text-[8px] font-mono font-bold uppercase tracking-widest">Aktyvus</div>}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{preset.icon}</span>
+                          <h4 className="font-extrabold text-xs text-[#1a1a1a] uppercase tracking-wide">{preset.name}</h4>
+                        </div>
+                        <p className="text-[10.5px] text-[#8a8a82] leading-snug">{preset.description}</p>
+                      </div>
+                      <div className="pt-2 border-t border-dashed border-[#e5e5e0] flex items-center justify-between gap-2.5">
+                        <div className="text-[9px] text-[#8a8a82] font-mono">({preset.ids.length} tyrimai)</div>
+                        <button
+                          onClick={() => setCartItems(preset.ids)}
+                          disabled={preset.ids.length === 0}
+                          className={`text-[9.5px] font-mono font-bold px-3 py-1.5 uppercase tracking-wider rounded-none border ${
+                            isSelected ? 'bg-[#059669] text-white border-[#059669]' : 'bg-[#1a1a1a] text-white border-[#1a1a1a] hover:bg-[#333]'
+                          } disabled:opacity-40`}
+                        >
+                          {isSelected ? '✓ Sukonstruota' : 'Užpildyti paketą'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}

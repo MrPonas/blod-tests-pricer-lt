@@ -51,7 +51,7 @@ export default async function HomePage() {
 
   const categoriesUI: CategoryUI[] = [
     { id: 'all', name: 'Visi tyrimai' },
-    ...categories.map(c => ({ id: c.slug, name: c.name_lt })),
+    ...categories.map(c => ({ id: c.slug, name: c.name_lt, icon: c.icon })),
   ];
 
   const testsUI: TestUI[] = allTests.map(test => {
