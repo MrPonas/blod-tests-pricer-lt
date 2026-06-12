@@ -1,7 +1,7 @@
 import { getCategories, getLabs, getAllTests } from '@/lib/db';
 import HomeClient, { type TestUI, type LabUI, type CategoryUI } from './components/HomeClient';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const SAMPLING_FEES: Record<string, number> = {
   anteja: 2.50, synlab: 3.00, affidea: 2.80, meliva: 2.20, rezus: 2.00,

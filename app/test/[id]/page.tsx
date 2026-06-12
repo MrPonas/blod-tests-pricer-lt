@@ -1,9 +1,20 @@
-import { getTestById, getLabs, getPriceHistory } from '@/lib/db';
+import { getTestById, getLabs, getPriceHistory, getActiveTestIds } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import PriceTable from '@/app/components/PriceTable';
 import ShareButton from '@/app/components/ShareButton';
+
+export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  try {
+    const ids = await getActiveTestIds();
+    return ids.map(id => ({ id: String(id) }));
+  } catch {
+    return [];
+  }
+}
 
 interface PageProps {
   params: Promise<{ id: string }>;

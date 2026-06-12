@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import Fuse from 'fuse.js';
 import type { TestWithPrices, Category } from '@/lib/types';
 
 interface Props {
@@ -13,21 +14,26 @@ export default function AllTestsFilter({ tests, categories }: Props) {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
+  const fuse = useMemo(() => new Fuse(tests, {
+    keys: [
+      { name: 'canonical_name_lt', weight: 3 },
+      { name: 'canonical_name_en', weight: 2 },
+      { name: 'aliases', weight: 1.5 },
+    ],
+    threshold: 0.35,
+    ignoreLocation: true,
+    minMatchCharLength: 2,
+  }), [tests]);
+
   const filtered = useMemo(() => {
-    let result = tests;
-    if (activeCategory) {
-      result = result.filter((t) => t.category?.slug === activeCategory);
-    }
     if (query.trim()) {
-      const q = query.trim().toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.canonical_name_lt.toLowerCase().includes(q) ||
-          (t.canonical_name_en ?? '').toLowerCase().includes(q)
-      );
+      const results = fuse.search(query.trim(), { limit: 200 }).map(r => r.item);
+      return activeCategory ? results.filter(t => t.category?.slug === activeCategory) : results;
     }
-    return result;
-  }, [tests, query, activeCategory]);
+    return activeCategory
+      ? tests.filter(t => t.category?.slug === activeCategory)
+      : tests;
+  }, [tests, query, activeCategory, fuse]);
 
   // Group by first letter only when not filtering by text
   const showGrouped = !query.trim();

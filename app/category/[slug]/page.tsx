@@ -10,6 +10,8 @@ interface PageProps {
   searchParams: Promise<{ labs?: string; sort?: string }>;
 }
 
+export const revalidate = 86400;
+
 export async function generateStaticParams() {
   try {
     const categories = await getCategories();

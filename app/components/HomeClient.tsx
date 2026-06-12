@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useSearchIndex } from '@/app/hooks/useSearchIndex';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -427,29 +428,11 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
   const [cityFilter, setCityFilter] = useState('Vilnius');
   const [locLabFilter, setLocLabFilter] = useState<string | null>(null);
   const [cartExpandedId, setCartExpandedId] = useState<string | null>(null);
-  // null = no search active; string[] = ordered IDs from fuzzy API
-  const [fuzzyIds, setFuzzyIds] = useState<string[] | null>(null);
+  const { search: fuseSearch, ready: fuseReady } = useSearchIndex();
 
   // ── Derived: active labs ───────────────────────────────────────────────────
   const activeLabs = useMemo(() => labs.filter(l => visibleLabs.includes(l.id)), [labs, visibleLabs]);
 
-  // ── Fuzzy search via API (debounced) ──────────────────────────────────────
-  useEffect(() => {
-    const q = searchTerm.trim();
-    if (!q) { setFuzzyIds(null); return; }
-    const timer = setTimeout(() => {
-      fetch(`/api/tests?search=${encodeURIComponent(q)}`)
-        .then(r => r.ok ? r.json() : [])
-        .then((data: { id: number }[]) => {
-          // Only switch to fuzzy mode when the API found matches.
-          // If empty (e.g. test exists but all prices are stale so RPC filters it),
-          // keep fuzzyIds=null so the client-side filter stays active.
-          if (data.length > 0) setFuzzyIds(data.map(t => String(t.id)));
-        })
-        .catch(() => { /* keep client-side filter */ });
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
 
   // ── Fetch trends when tab or test changes ──────────────────────────────────
   useEffect(() => {
@@ -466,14 +449,15 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
   const filteredTests = useMemo(() => {
     let result: TestUI[];
 
-    if (searchTerm.trim() && fuzzyIds !== null) {
-      // Fuzzy API results: filter pre-loaded tests by matched IDs, preserve similarity order
-      const order = new Map(fuzzyIds.map((id, i) => [id, i]));
+    if (searchTerm.trim() && fuseReady) {
+      // Fuse.js search on the static index — returns ordered IDs
+      const matches = fuseSearch(searchTerm.trim(), 50);
+      const order = new Map(matches.map((m, i) => [String(m.id), i]));
       result = tests
         .filter(t => order.has(t.id) && (selectedCategory === 'all' || t.category === selectedCategory))
         .sort((a, b) => (order.get(a.id) ?? 999) - (order.get(b.id) ?? 999));
     } else {
-      // Client-side filter (no search, or API still in-flight)
+      // No search term (or index not yet loaded) — show all with sort applied
       result = tests.filter(t => {
         const q = searchTerm.toLowerCase();
         const matchSearch = !q ||
@@ -503,7 +487,7 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
     }
 
     return result;
-  }, [tests, searchTerm, fuzzyIds, selectedCategory, sortBy, visibleLabs]);
+  }, [tests, searchTerm, fuseReady, fuseSearch, selectedCategory, sortBy, visibleLabs]);
 
   // ── Cart computations ──────────────────────────────────────────────────────
   const cartTests = useMemo(() => tests.filter(t => cartItems.includes(t.id)), [tests, cartItems]);

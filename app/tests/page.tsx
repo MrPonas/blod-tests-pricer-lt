@@ -2,7 +2,7 @@ import { getAllTests, getCategories } from '@/lib/db';
 import Link from 'next/link';
 import AllTestsFilter from '@/app/components/AllTestsFilter';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export default async function AllTestsPage() {
   const [tests, categories] = await Promise.all([getAllTests(), getCategories()]);

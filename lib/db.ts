@@ -151,6 +151,15 @@ export async function getAllCanonicalTests() {
   return (data ?? []) as { id: number; canonical_name_lt: string; canonical_name_en: string | null; aliases: string[] }[];
 }
 
+export async function getActiveTestIds(): Promise<number[]> {
+  const { data } = await db()
+    .from('prices')
+    .select('test_id')
+    .eq('is_stale', false)
+    .gt('price_eur', 0);
+  return [...new Set((data ?? []).map(r => r.test_id as number))];
+}
+
 export async function getAllTests(): Promise<TestWithPrices[]> {
   const { data, error } = await db()
     .from('tests')
