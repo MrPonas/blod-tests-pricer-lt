@@ -50,9 +50,18 @@ export default async function HomePage() {
     color: LAB_COLORS[lab.slug] ?? '#8a8a82',
   }));
 
+  // Count tests per category slug so we can filter to those with meaningful content
+  const testCountByCategory: Record<string, number> = {};
+  for (const test of allTests) {
+    const slug = test.category?.slug ?? 'kita';
+    testCountByCategory[slug] = (testCountByCategory[slug] ?? 0) + 1;
+  }
+
   const categoriesUI: CategoryUI[] = [
     { id: 'all', name: 'Visi tyrimai' },
-    ...categories.map(c => ({ id: c.slug, name: c.name_lt, icon: c.icon })),
+    ...categories
+      .filter(c => (testCountByCategory[c.slug] ?? 0) >= 5)
+      .map(c => ({ id: c.slug, name: c.name_lt, icon: c.icon })),
   ];
 
   const testsUI: TestUI[] = allTests.filter(test => !isProcedure(test.canonical_name_lt)).map(test => {

@@ -36,7 +36,130 @@ interface Rule {
 }
 
 // Rules applied in order — first match wins. Most specific first.
+// IDs 9-15 are the new fine-grained categories added 2026-06-12.
 const RULES: Rule[] = [
+  // ── NEW: Genetiniai (15) ─────────────────────────────────────────────────
+  {
+    catId: 15,
+    label: 'Genetiniai',
+    patterns: [
+      /genetin[eėiai]/i,
+      /chromosom/i,
+      /\bBRCA\b/i,
+      /\bHLA[\s-][A-Z]/i,
+      /tėvystės\s+nustatym/i,
+      /giminystės\s+nustatym/i,
+      /prenatalin[eė]/i,
+      /genomo\s+tyrimas/i,
+      /DNR\s+tyrimas\b(?!.*PGR|.*PCR)/i,
+    ],
+  },
+  // ── NEW: PGR tyrimai (14) ────────────────────────────────────────────────
+  {
+    catId: 14,
+    label: 'PGR tyrimai',
+    patterns: [
+      /\bPGR\s+metodu\b/i,
+      /\bPCR\s+metodu\b/i,
+      /DNR\s+nustatym/i,
+      /RNR\s+nustatym/i,
+      /molekulin[eė]\s+diagnostik/i,
+      /genotip[ao]\s+nustatym/i,
+      /rezistentiškum.*(?:PGR|PCR)/i,
+    ],
+  },
+  // ── NEW: Autoimuniniai (13) ───────────────────────────────────────────────
+  {
+    catId: 13,
+    label: 'Autoimuniniai',
+    patterns: [
+      /autoimun/i,
+      /\bANA\b/i,
+      /\bANCA\b/i,
+      /anti[\s-]?ds[\s-]?DNA/i,
+      /antinuklear/i,
+      /reumatoidinis\s+faktori/i,
+      /\banti[\s-]?CCP\b/i,
+      /\banti[\s-]?Sm\b/i,
+      /\banti[\s-]?Jo[\s-]?1\b/i,
+      /\banti[\s-]?Scl[\s-]?70\b/i,
+      /\bSS[\s-]?[AB]\s+antikūn/i,
+      /ciklinis\s+citrul/i,
+      /\bRF\b.*reumatoid/i,
+      /reumatoidinio\s+artrit/i,
+    ],
+  },
+  // ── NEW: Mikrobiologija (11) ─────────────────────────────────────────────
+  {
+    catId: 11,
+    label: 'Mikrobiologija',
+    patterns: [
+      /mikrobiologin[eė]\s+tyrimas?/i,
+      /bakterij.*kultūr/i,
+      /kultūr.*jautrum/i,
+      /pasėlis\s+(?:ir|su)\s+jautrum/i,
+      /jautrum[ao]\s+antibiotikams/i,
+      /\btepinėlis\b/i,
+      /tepinėlio\s+mikroskopi/i,
+      /nuograndų\s+tyrimas?/i,
+      /\bgrybelių\s+(?:kultūr|jautrum)/i,
+    ],
+  },
+  // ── NEW: Mikroelementai (12) ─────────────────────────────────────────────
+  {
+    catId: 12,
+    label: 'Mikroelementai',
+    patterns: [
+      /sunkiųjų\s+metal/i,
+      /toksiniai?\s+metal/i,
+      /\balavas\b/i,
+      /\baliuminis\b/i,
+      /\bauksas\b/i,
+      /\bberilis\b/i,
+      /\bbismutas\b/i,
+      /\bgyvsidabris\b/i,
+      /\barsenas\b/i,
+      /\bniobis\b/i,
+      /\bvolframas\b/i,
+      /\btitanas\b/i,
+      /\bsidabras\b/i,
+      /\bstibis\b/i,
+    ],
+  },
+  // ── NEW: Šlapimo tyrimai (10) ────────────────────────────────────────────
+  {
+    catId: 10,
+    label: 'Šlapimo tyrimai',
+    patterns: [
+      /šlapimo\s+tyrimas?/i,
+      /šlapimo\s+analiz/i,
+      /bendr[ao\s]+šlapim/i,
+      /\bBŠT\b/i,
+      /mikroalbuminurij/i,
+      /proteinurij/i,
+      /hematuurij/i,
+      /šlapimo\s+sediment/i,
+      /šlapimo\s+osmoliarin/i,
+      /šlapimo\s+pasėl/i,
+      /24\s*val.*šlapim/i,
+    ],
+  },
+  // ── NEW: Koaguliacija (9) ─────────────────────────────────────────────────
+  {
+    catId: 9,
+    label: 'Koaguliacija',
+    patterns: [
+      /koaguliaci/i,
+      /krešėjimo\s+faktori/i,
+      /tromboplastin/i,
+      /\bvon\s+Willebrand/i,
+      /lupus\s+antikoaguliant/i,
+      /antifosfolipid/i,
+      /\bantikardiolipin/i,
+      /heparino\s+atsparam/i,
+    ],
+  },
+  // ── END NEW ──────────────────────────────────────────────────────────────
   {
     catId: 3,
     label: 'Vitaminai',
@@ -501,6 +624,13 @@ async function main() {
     6: 'Alergologijos',
     7: 'Onkologiniai žymenys',
     8: 'Kita',
+    9: 'Koaguliacija',
+    10: 'Šlapimo tyrimai',
+    11: 'Mikrobiologija',
+    12: 'Mikroelementai',
+    13: 'Autoimuniniai',
+    14: 'PGR tyrimai',
+    15: 'Genetiniai',
   };
   for (const [id, cnt] of Object.entries(counts).sort((a, b) => Number(b[1]) - Number(a[1]))) {
     console.log(`  ${catNames[Number(id)]} (${id}): ${cnt}`);

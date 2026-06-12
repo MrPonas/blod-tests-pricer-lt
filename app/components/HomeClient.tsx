@@ -720,7 +720,7 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
         <div className="space-y-3">
           <p className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#8a8a82]">Kategorijos:</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            {categories.slice(0, 8).map(cat => (
+            {categories.filter(c => c.id !== 'all').map(cat => (
               <a key={cat.id} href={`/category/${cat.id}`}
                 className="flex items-center gap-2.5 px-4 py-3 bg-[#fdfdfc] border-2 border-[#1a1a1a] hover:bg-[#f4f4f0] transition-colors group"
               >
