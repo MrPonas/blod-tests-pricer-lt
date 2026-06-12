@@ -433,6 +433,11 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
   // ── Derived: active labs ───────────────────────────────────────────────────
   const activeLabs = useMemo(() => labs.filter(l => visibleLabs.includes(l.id)), [labs, visibleLabs]);
 
+  // Labs with zero prices across all tests (not yet scraped)
+  const emptyLabs = useMemo(() => new Set(
+    labs.filter(lab => !tests.some(t => (t.prices[lab.id] ?? 0) > 0)).map(l => l.id)
+  ), [labs, tests]);
+
 
   // ── Fetch trends when tab or test changes ──────────────────────────────────
   useEffect(() => {
@@ -915,8 +920,12 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                                 <div key={lab.id} className="flex flex-col md:block justify-center items-center py-2 px-1 border border-[#e5e5e0] bg-white">
                                   <span className="text-[9px] font-bold text-[#8a8a82] md:hidden block mb-1 font-mono uppercase">{lab.name}</span>
                                   <div className={`text-xs md:text-sm font-bold px-1 py-0.5 w-full text-center ${isCheap ? 'text-[#059669] font-black bg-[#ecfdf5] border-l-2 border-[#059669]' : 'text-[#1a1a1a]'}`}>
-                                    {price ? `${price.toFixed(2)} €` : '—'}
-                                    {isCheap && <span className="text-[10px] text-[#059669] font-mono ml-0.5">★</span>}
+                                    {price
+                                      ? <>{price.toFixed(2)} €{isCheap && <span className="text-[10px] text-[#059669] font-mono ml-0.5">★</span>}</>
+                                      : emptyLabs.has(lab.id)
+                                        ? <span className="text-[9px] font-mono text-[#8a8a82] italic normal-case tracking-normal">Netrukus</span>
+                                        : '—'
+                                    }
                                   </div>
                                 </div>
                               );
@@ -983,7 +992,9 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                                         <div className="flex items-center gap-1.5 flex-wrap">
                                           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: lab.color }} />
                                           <span className="font-bold text-[#1a1a1a]">{lab.name}:</span>
-                                          <span className="bg-[#f4f4f0] text-[#1a1a1a] px-1.5 py-0.5 font-extrabold font-mono">{price ? `${price.toFixed(2)} €` : '—'}</span>
+                                          <span className="bg-[#f4f4f0] text-[#1a1a1a] px-1.5 py-0.5 font-extrabold font-mono">
+                                            {price ? `${price.toFixed(2)} €` : emptyLabs.has(lab.id) ? <span className="text-[#8a8a82] italic font-normal text-[10px]">Netrukus</span> : '—'}
+                                          </span>
                                           <span className="text-[#8a8a82] text-[10px] font-mono">(+ {lab.samplingFee.toFixed(2)} € paėmimas)</span>
                                         </div>
                                         {url && (
