@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchIndex } from '@/app/hooks/useSearchIndex';
 import { getDisplayName } from '@/lib/utils';
+import { optimizeBasket } from '@/lib/basket-optimizer';
+import type { BasketOptimization } from '@/lib/basket-optimizer';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -539,6 +541,11 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
     return { difference: Math.abs(diff), isSplitCheaper: diff > 0.05, visitedCount: splitStrategy.visitedLabs.length };
   }, [splitStrategy, cheapestCartLab]);
 
+  const basketOptimization = useMemo((): BasketOptimization | null => {
+    if (cartTests.length === 0) return null;
+    return optimizeBasket(cartTests, activeLabs);
+  }, [cartTests, activeLabs]);
+
   // ── Preset packages ────────────────────────────────────────────────────────
   const presetPackages = useMemo(() => [
     { name: 'Nuovargio paieška', description: 'BKT + Vitaminas D + Feritinas + TTH', icon: '⚡', color: 'border-amber-200 hover:border-amber-400 bg-amber-50/20', matchers: ['bendras kraujo', 'vitaminas d', 'feritinas', 'tirotropinas'] },
@@ -1033,7 +1040,7 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                                         {url && (
                                           <a href={url} target="_blank" rel="noopener noreferrer"
                                             className="shrink-0 px-3 py-1 bg-[#059669] hover:bg-[#047857] text-white font-bold uppercase tracking-wider text-[9px] transition-colors whitespace-nowrap">
-                                            Registruotis →
+                                            Atidaryti ↗
                                           </a>
                                         )}
                                       </div>
@@ -1272,134 +1279,277 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
 
                 {/* Right panel */}
                 <div className="lg:col-span-7 space-y-6">
-                  {/* Split strategy */}
-                  {splitStrategy && cheapestCartLab && (
-                    <div className="bg-[#fcfcfb] border-2 border-[#1a1a1a] p-6 space-y-5 shadow-[4px_4px_0px_0px_#1a1a1a]">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 bg-[#1a1a1a] text-white text-[9px] font-mono font-bold uppercase tracking-widest">Paketo Optimizavimo Analizė</span>
-                      </div>
-                      <h3 className="text-xl font-serif italic font-bold text-[#1a1a1a]">Ar verta tyrimus atlikti vienoje vietoje, ar skaidyti?</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                        <div className="border border-[#1a1a1a] bg-[#ecfdf5]/20 p-4 space-y-4 flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="p-1 bg-[#059669] text-white text-[8.5px] font-mono font-black uppercase">Vienas taškas</span>
-                              <h4 className="text-xs font-bold text-[#1a1a1a]">Viskas vienoje vietoje</h4>
-                            </div>
-                            <p className="text-[11px] text-[#63635e]">Klinikoje <span className="font-bold text-[#1a1a1a]">{cheapestCartLab.name}</span> — kraujas imamas tik 1 kartą.</p>
-                          </div>
-                          <div className="pt-3 border-t border-[#e5e5e0] space-y-1">
-                            <div className="text-[10px] text-[#8a8a82] font-mono uppercase">Iš viso su 1 paėmimu</div>
-                            <div className="text-2xl font-black text-[#1a1a1a] font-mono">{cheapestCartLab.totalPrice.toFixed(2)} €</div>
-                            <div className="text-[10px] text-[#8a8a82]">({cheapestCartLab.testsSum.toFixed(2)} € + {cheapestCartLab.samplingFee.toFixed(2)} € paėmimas)</div>
-                          </div>
-                        </div>
-                        <div className="border border-[#1a1a1a] bg-zinc-50/20 p-4 space-y-4 flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="p-1 bg-[#1a1a1a] text-white text-[8.5px] font-mono font-black uppercase">Skaidytas</span>
-                              <h4 className="text-xs font-bold text-[#1a1a1a]">Atskirai kur pigiausia</h4>
-                            </div>
-                            <p className="text-[11px] text-[#63635e]">Reikės aplankyti <span className="font-bold text-[#1a1a1a] font-mono">{splitStrategy.visitedLabs.length} įstaigas</span>.</p>
-                          </div>
-                          <div className="pt-3 border-t border-[#e5e5e0] space-y-1">
-                            <div className="text-[10px] text-[#8a8a82] font-mono uppercase">Iš viso su {splitStrategy.visitedLabs.length} paėmimais</div>
-                            <div className="text-2xl font-black text-[#1a1a1a] font-mono">{splitStrategy.totalSplitCost.toFixed(2)} €</div>
-                            <div className="text-[10px] text-[#8a8a82]">({splitStrategy.totalTestsSum.toFixed(2)} € + {splitStrategy.totalSamplingFees.toFixed(2)} € paėmimai)</div>
-                          </div>
-                        </div>
-                      </div>
-                      {splitComparison && (
-                        <div className={`p-4 border border-[#1a1a1a] text-xs leading-relaxed ${splitComparison.isSplitCheaper ? 'bg-[#ecfdf5] text-[#0f5132]' : 'bg-[#fffcf0] text-[#1a1a1a]'}`}>
-                          {splitComparison.isSplitCheaper
-                            ? <p><span className="font-bold">Išvada:</span> Skaidymas sutaupytų <span className="font-mono font-bold">{splitComparison.difference.toFixed(2)} €</span>, tačiau reikės kelių vizitų.</p>
-                            : <p><span className="font-bold">Išvada:</span> Viskas vienoje vietoje ({cheapestCartLab.name}) yra <span className="font-mono font-bold">{splitComparison.difference.toFixed(2)} €</span> pigiau ir patogiau.</p>
-                          }
-                        </div>
-                      )}
-                      {/* Split items */}
-                      <div className="pt-3 space-y-2">
-                        <h4 className="text-[10px] font-mono font-bold text-[#1a1a1a] uppercase tracking-wider">Atskirų tyrimų optimumas:</h4>
-                        <div className="bg-white border border-[#e5e5e0] divide-y divide-[#e5e5e0] text-xs">
-                          {splitStrategy.items.map(item => (
-                            <div key={item.testId} className="p-3 flex justify-between items-center bg-[#fdfdfc] hover:bg-white text-[11.5px]">
-                              <div>
-                                <span className="font-mono bg-[#f4f4f0] text-[#1a1a1a] px-1 py-0.5 border border-[#e5e5e0] font-bold text-[8.5px] mr-1.5">{item.testCode}</span>
-                                <span className="font-bold text-[#1a1a1a]">{item.testName}</span>
-                              </div>
-                              <span className="font-mono font-black text-[#059669] bg-[#ecfdf5] px-1.5 py-0.5 border border-[#a7f3d0] text-xs shrink-0">{item.bestLabName} ({item.bestPrice.toFixed(2)} €)</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {basketOptimization && (() => {
+                    const best = basketOptimization.singleLabOptions[0] ?? null;
+                    const split = basketOptimization.splitOption;
+                    const splitSaves = best && split ? best.total - split.total : 0;
+                    const splitIsCheaper = splitSaves > 0.05;
 
-                  {/* Bar chart */}
-                  <div className="bg-[#fdfdfc] border-2 border-[#1a1a1a] p-6 space-y-4">
-                    <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#1a1a1a] font-mono">Krepšelio kainų palyginimas (su paėmimu):</h4>
-                      <p className="text-xs text-[#8a8a82] italic">Kuo stulpelis trumpesnis — tuo laboratorija pigesnė.</p>
-                    </div>
-                    <div className="space-y-4 pt-2">
-                      {labTotals.map(lab => {
-                        const pct = (lab.totalPrice / maxPriceForChart) * 85;
-                        const isCheap = cheapestCartLab && lab.id === cheapestCartLab.id;
-                        return (
-                          <div key={lab.id} className="space-y-1.5">
-                            <div className="flex justify-between items-center text-xs">
-                              <div className="flex items-center gap-2">
-                                <span className="w-3 h-3" style={{ backgroundColor: lab.color }} />
-                                <span className="font-bold text-[#1a1a1a]">{lab.name}</span>
-                                <span className="text-[10px] text-[#8a8a82] font-mono">({lab.testsSum.toFixed(2)} € + {lab.samplingFee.toFixed(2)} €)</span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                {isCheap && <span className="bg-[#ecfdf5] text-[#059669] text-[9px] font-bold px-1.5 py-0.5 uppercase border border-[#a7f3d0]">Pigiausias</span>}
-                                <span className={`text-[13px] font-mono font-bold ${isCheap ? 'text-[#059669] font-black' : 'text-[#1a1a1a]'}`}>{lab.totalPrice.toFixed(2)} €</span>
-                              </div>
-                            </div>
-                            <div className="w-full bg-[#f4f4f0] h-6 border border-[#e5e5e0] overflow-hidden relative">
-                              <div className="h-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: isCheap ? '#059669' : '#8a8a82' }} />
-                            </div>
+                    return (
+                      <>
+                        {/* ── Section A: Coverage matrix ── */}
+                        <div className="bg-[#fdfdfc] border-2 border-[#1a1a1a] overflow-hidden">
+                          <div className="px-5 py-3 border-b-2 border-[#1a1a1a] bg-[#f4f4f0]">
+                            <h3 className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#8a8a82]">Tyrimų prieinamumas laboratorijose</h3>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-xs border-collapse">
+                              <thead>
+                                <tr className="border-b border-[#e5e5e0]">
+                                  <th className="text-left px-4 py-2.5 font-mono text-[10px] uppercase tracking-wider text-[#8a8a82] font-bold bg-[#f4f4f0] min-w-[120px]">Tyrimas</th>
+                                  {activeLabs.map(lab => (
+                                    <th key={lab.id} className="px-3 py-2.5 font-mono text-[10px] uppercase tracking-wider text-[#8a8a82] font-bold text-center bg-[#f4f4f0] whitespace-nowrap">
+                                      {lab.name}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-[#e5e5e0]">
+                                {cartTests.map(test => {
+                                  const isUnavailable = activeLabs.every(l => (test.prices[l.id] ?? 0) === 0);
+                                  const pricesForTest = activeLabs.map(l => test.prices[l.id]).filter(Boolean) as number[];
+                                  const minForTest = pricesForTest.length ? Math.min(...pricesForTest) : null;
+                                  return (
+                                    <tr key={test.id} className={isUnavailable ? 'bg-[#fffcf0]' : 'hover:bg-[#f9f9f6]'}>
+                                      <td className="px-4 py-2.5 font-medium text-[#1a1a1a] max-w-[160px]">
+                                        <span className="block truncate" title={test.name}>{test.name}</span>
+                                        {isUnavailable && <span className="text-[9px] font-mono text-[#856d2b]">nėra kainų</span>}
+                                      </td>
+                                      {activeLabs.map(lab => {
+                                        const price = test.prices[lab.id];
+                                        const isCheapest = price !== undefined && price === minForTest && (pricesForTest.length > 1);
+                                        return (
+                                          <td key={lab.id} className="px-3 py-2.5 text-center whitespace-nowrap">
+                                            {price ? (
+                                              <span className={`font-mono font-bold tabular-nums ${isCheapest ? 'text-[#059669]' : 'text-[#1a1a1a]'}`}>
+                                                {isCheapest && <span className="text-[9px] mr-0.5">★</span>}€{price.toFixed(2)}
+                                              </span>
+                                            ) : (
+                                              <span className="text-[#856d2b] font-mono font-bold text-base leading-none">—</span>
+                                            )}
+                                          </td>
+                                        );
+                                      })}
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
 
-                  {/* Lab cards */}
-                  <div className="bg-[#fdfdfc] border-2 border-[#1a1a1a] p-6 space-y-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#1a1a1a] font-mono">Klinikų oficialios svetainės:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                      {activeLabs.map(lab => {
-                        const lt = labTotals.find(l => l.id === lab.id);
-                        const isCheap = cheapestCartLab?.id === lab.id;
-                        return (
-                          <div key={lab.id} className={`border-2 p-5 flex flex-col justify-between space-y-3.5 transition ${isCheap ? 'border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a]' : 'border-[#e5e5e0] hover:bg-[#f4f4f0]'}`}>
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="font-extrabold text-[#1a1a1a] text-sm uppercase tracking-wider">{lab.name}</span>
-                                {isCheap && <span className="text-[9px] font-bold text-[#059669] bg-[#ecfdf5] border border-[#a7f3d0] px-2 py-0.5 uppercase font-mono">Finansinis Optimumas</span>}
+                        {/* Coverage gap warning */}
+                        {basketOptimization.coverageGaps.length > 0 && (
+                          <div className="bg-[#fffcf0] border-2 border-[#f0e6c5] p-4 space-y-2">
+                            <p className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#856d2b]">
+                              ⚠ Šių tyrimų neatlieka nė viena laboratorija:
+                            </p>
+                            {basketOptimization.coverageGaps.map(gap => (
+                              <p key={gap.test.id} className="text-xs text-[#856d2b]">• {gap.test.name}</p>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* ── Section B: Three options ── */}
+                        {best && split ? (
+                          <>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                              {/* Option 1: Pigiausia viena laboratorija */}
+                              <div className="border-2 border-[#059669] bg-[#ecfdf5]/30 p-4 space-y-3 shadow-[2px_2px_0px_0px_#059669]">
+                                <div>
+                                  <span className="font-mono text-[8px] font-bold uppercase tracking-widest text-[#059669]">1 Variantas</span>
+                                  <h4 className="font-bold text-xs text-[#1a1a1a] mt-1 leading-tight">Pigiausia viena laboratorija</h4>
+                                </div>
+                                <div className="space-y-1.5">
+                                  {basketOptimization.singleLabOptions.slice(0, 4).map((opt, i) => (
+                                    <div key={opt.lab.id} className={`flex items-center justify-between gap-2 py-1.5 border-b border-[#e5e5e0] last:border-0 ${i === 0 ? 'pb-2' : ''}`}>
+                                      <div className="flex items-center gap-1.5 min-w-0">
+                                        {i === 0 && <span className="text-[#059669] font-bold text-[10px] shrink-0">★</span>}
+                                        <span className={`text-xs font-bold truncate ${i === 0 ? 'text-[#059669]' : 'text-[#1a1a1a]'}`}>{opt.lab.name}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1.5 shrink-0">
+                                        <span className={`font-mono font-bold tabular-nums text-sm ${i === 0 ? 'text-[#059669]' : 'text-[#1a1a1a]'}`}>€{opt.total.toFixed(2)}</span>
+                                        {opt.lab.bookingUrl && (
+                                          <a href={opt.lab.bookingUrl} target="_blank" rel="noopener noreferrer"
+                                            className="text-[8.5px] font-mono font-bold px-1.5 py-0.5 bg-[#059669] hover:bg-[#047857] text-white transition whitespace-nowrap">
+                                            Atidaryti ↗
+                                          </a>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                                <p className="text-[9.5px] text-[#8a8a82] font-mono">Su paėmimo mokesčiu (€{best.lab.samplingFee.toFixed(2)})</p>
                               </div>
-                              <p className="text-[11px] text-[#63635e] leading-relaxed">{lab.description}</p>
+
+                              {/* Option 2: Pigiausia kombinacija */}
+                              <div className="border-2 border-[#1a1a1a] p-4 space-y-3">
+                                <div>
+                                  <span className="font-mono text-[8px] font-bold uppercase tracking-widest text-[#8a8a82]">2 Variantas</span>
+                                  <h4 className="font-bold text-xs text-[#1a1a1a] mt-1 leading-tight">Pigiausia kombinacija</h4>
+                                </div>
+                                <div>
+                                  <div className="font-mono font-black text-2xl text-[#1a1a1a] tabular-nums">€{split.total.toFixed(2)}</div>
+                                  <div className="text-[10px] text-[#8a8a82] font-mono mt-0.5">
+                                    {split.labsUsed.length} laboratorij{split.labsUsed.length === 1 ? 'a' : 'os'} · {split.labsUsed.length} vizit{split.labsUsed.length === 1 ? 'as' : 'ai'}
+                                  </div>
+                                </div>
+                                {splitIsCheaper && (
+                                  <div className="bg-[#ecfdf5] border border-[#a7f3d0] px-2.5 py-1.5">
+                                    <span className="font-mono font-bold text-[#059669] text-[10px]">
+                                      Sutaupote €{splitSaves.toFixed(2)} vs 1 lab.
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="space-y-1 pt-1">
+                                  {split.assignments.map(a => (
+                                    <div key={a.test.id} className="flex items-center justify-between text-[10px] gap-1">
+                                      <span className="text-[#1a1a1a] truncate" title={a.test.name}>{a.test.name}</span>
+                                      <span className="font-mono font-bold text-[#059669] shrink-0">{a.lab.name} €{a.price.toFixed(2)}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Option 3: Vienas vizitas */}
+                              <div className="border-2 border-[#1a1a1a] bg-[#fdfdfc] p-4 space-y-3">
+                                <div>
+                                  <span className="font-mono text-[8px] font-bold uppercase tracking-widest text-[#8a8a82]">3 Variantas</span>
+                                  <h4 className="font-bold text-xs text-[#1a1a1a] mt-1 leading-tight">Vienas vizitas</h4>
+                                </div>
+                                <p className="text-[11px] text-[#63635e] leading-snug">
+                                  Visa tai atliekate <span className="font-bold text-[#1a1a1a]">{best.lab.name}</span> — kraujas imamas vieną kartą.
+                                </p>
+                                <div>
+                                  <div className="font-mono font-black text-2xl text-[#1a1a1a] tabular-nums">€{best.total.toFixed(2)}</div>
+                                  {splitIsCheaper ? (
+                                    <div className="text-[10px] text-[#8a8a82] font-mono mt-0.5">
+                                      +€{splitSaves.toFixed(2)} daugiau nei skaidant, bet 1 vizitas
+                                    </div>
+                                  ) : (
+                                    <div className="text-[10px] text-[#059669] font-mono font-bold mt-0.5">
+                                      Ir pigiausias, ir patogiausias
+                                    </div>
+                                  )}
+                                </div>
+                                {best.lab.bookingUrl && (
+                                  <a href={best.lab.bookingUrl} target="_blank" rel="noopener noreferrer"
+                                    className="block w-full text-center py-2 bg-[#059669] hover:bg-[#047857] text-white font-mono font-bold text-[9.5px] uppercase tracking-wider transition">
+                                    Atidaryti {best.lab.name} ↗
+                                  </a>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex justify-between items-center pt-2.5 border-t border-[#e5e5e0] gap-2">
-                              <div>
-                                <p className="text-[#8a8a82] text-[9px] uppercase font-bold font-mono">Bendra paketo kaina</p>
-                                <p className="text-sm font-black text-[#1a1a1a] font-mono">{lt?.totalPrice.toFixed(2) ?? '—'} €</p>
-                              </div>
-                              {lab.bookingUrl && (
-                                <a href={lab.bookingUrl} target="_blank" rel="noopener noreferrer"
-                                  className="text-xs font-mono font-bold px-3 py-2 border-2 border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white text-[#1a1a1a] transition uppercase tracking-wider inline-flex items-center gap-1">
-                                  Svetainė <Ic.Link c="w-3 h-3" />
-                                </a>
-                              )}
+
+                            {/* Conclusion */}
+                            <div className={`p-4 border-2 border-[#1a1a1a] text-xs leading-relaxed ${splitIsCheaper ? 'bg-[#ecfdf5]' : 'bg-[#fffcf0]'}`}>
+                              {splitIsCheaper
+                                ? <p><span className="font-bold">Išvada:</span> Skaidymas sutaupytų <span className="font-mono font-bold text-[#059669]">€{splitSaves.toFixed(2)}</span>, tačiau reikės <span className="font-bold">{split.labsUsed.length} laboratorijų vizitų</span>.</p>
+                                : <p><span className="font-bold">Išvada:</span> <span className="font-bold">{best.lab.name}</span> yra ir pigiausias, ir patogiausias pasirinkimas — viskas vienoje vietoje.</p>
+                              }
+                            </div>
+                          </>
+                        ) : basketOptimization.minVisitCombination ? (
+                          /* ── Section C: No single lab covers all ── */
+                          <div className="bg-[#fffcf0] border-2 border-[#f0e6c5] p-5 space-y-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[#856d2b] text-lg">⚠</span>
+                              <h4 className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#856d2b]">
+                                Nė viena laboratorija neatlieka visų tyrimų
+                              </h4>
+                            </div>
+                            <p className="text-xs text-[#856d2b]">Rekomenduojama minimali laboratorijų kombinacija:</p>
+                            <div className="space-y-3">
+                              {basketOptimization.minVisitCombination.groups.map(g => (
+                                <div key={g.lab.id} className="bg-white border border-[#f0e6c5] p-3 space-y-2">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-bold text-[#1a1a1a] text-sm">{g.lab.name}</span>
+                                    <span className="font-mono text-xs text-[#8a8a82]">
+                                      €{g.tests.reduce((s, t) => s + t.price, 0).toFixed(2)} + €{g.lab.samplingFee.toFixed(2)} paėmimas
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1">
+                                    {g.tests.map(t => (
+                                      <span key={t.test.id} className="text-[9px] font-mono bg-[#fffcf0] border border-[#f0e6c5] px-1.5 py-0.5 text-[#856d2b]">
+                                        {t.test.name}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  {g.lab.bookingUrl && (
+                                    <a href={g.lab.bookingUrl} target="_blank" rel="noopener noreferrer"
+                                      className="inline-flex text-[10px] font-mono font-bold text-[#059669] hover:text-[#047857] uppercase tracking-wider gap-1">
+                                      Atidaryti {g.lab.name} ↗
+                                    </a>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex items-center justify-between pt-2 border-t border-[#f0e6c5]">
+                              <span className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#856d2b]">Bendra kaina:</span>
+                              <span className="font-mono font-black text-xl text-[#1a1a1a] tabular-nums">€{basketOptimization.minVisitCombination.total.toFixed(2)}</span>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                        ) : null}
+
+                        {/* ── Planuoti vizitus ── */}
+                        {split && (
+                          <div className="bg-[#fdfdfc] border-2 border-[#1a1a1a] overflow-hidden">
+                            <div className="px-5 py-3 border-b-2 border-[#1a1a1a] bg-[#f4f4f0] flex items-center justify-between">
+                              <h4 className="font-mono font-bold text-[11px] uppercase tracking-widest text-[#8a8a82]">
+                                Kelionių planas — {splitIsCheaper ? 'pigiausia kombinacija' : 'viena laboratorija'}
+                              </h4>
+                              <span className="font-mono font-black text-sm text-[#1a1a1a] tabular-nums">
+                                €{(splitIsCheaper ? split.total : (best?.total ?? split.total)).toFixed(2)} iš viso
+                              </span>
+                            </div>
+                            <div className="divide-y divide-[#e5e5e0]">
+                              {(() => {
+                                const planGroups = splitIsCheaper
+                                  ? (() => {
+                                      const byLab = new Map<string, typeof split.assignments>();
+                                      for (const a of split.assignments) {
+                                        if (!byLab.has(a.lab.id)) byLab.set(a.lab.id, []);
+                                        byLab.get(a.lab.id)!.push(a);
+                                      }
+                                      return Array.from(byLab.entries()).map(([, items]) => ({ lab: items[0].lab, items }));
+                                    })()
+                                  : best
+                                    ? [{ lab: best.lab, items: best.assignments.map(a => ({ ...a, lab: best.lab })) }]
+                                    : [];
+                                return planGroups.map(({ lab, items }) => (
+                                  <div key={lab.id} className="px-5 py-4 space-y-3">
+                                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                                      <div className="flex items-center gap-2">
+                                        <span className="w-3 h-3 shrink-0" style={{ backgroundColor: lab.color ?? '#8a8a82' }} />
+                                        <span className="font-bold text-[#1a1a1a] text-sm">{lab.name}</span>
+                                        <span className="font-mono text-[10px] text-[#8a8a82]">
+                                          €{items.reduce((s, a) => s + a.price, 0).toFixed(2)} + €{lab.samplingFee.toFixed(2)} paėmimas
+                                        </span>
+                                      </div>
+                                      {lab.bookingUrl && (
+                                        <a href={lab.bookingUrl} target="_blank" rel="noopener noreferrer"
+                                          className="shrink-0 px-3 py-1.5 bg-[#059669] hover:bg-[#047857] text-white font-mono font-bold text-[9.5px] uppercase tracking-wider transition whitespace-nowrap">
+                                          Atidaryti ↗
+                                        </a>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {items.map(a => (
+                                        <span key={a.test.id} className="text-[9.5px] font-mono bg-[#f4f4f0] border border-[#e5e5e0] px-2 py-1 text-[#1a1a1a]">
+                                          {a.test.name} <span className="text-[#059669] font-bold">€{a.price.toFixed(2)}</span>
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ));
+                              })()}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             )}

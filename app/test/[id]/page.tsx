@@ -128,7 +128,7 @@ export default async function TestPage({ params }: PageProps) {
                 rel="noopener noreferrer"
                 className="flex-shrink-0 px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white rounded-none border-2 border-[#059669] font-bold uppercase tracking-wider text-xs transition-colors whitespace-nowrap"
               >
-                Registruotis →
+                Atidaryti ↗
               </Link>
             )}
           </div>

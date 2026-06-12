@@ -119,7 +119,7 @@ export default function PriceTable({ prices, labs }: Props) {
                           : 'border-[#1a1a1a] text-[#1a1a1a] bg-white hover:bg-[#f4f4f0]'
                       }`}
                     >
-                      Užsakyti
+                      Atidaryti ↗
                     </Link>
                   ) : <span />}
                 </div>
@@ -164,7 +164,7 @@ export default function PriceTable({ prices, labs }: Props) {
                         : 'border-[#1a1a1a] text-[#1a1a1a] bg-white hover:bg-[#f4f4f0]'
                     }`}
                   >
-                    Užsakyti
+                    Atidaryti ↗
                   </Link>
                 )}
               </div>
