@@ -1,0 +1,48 @@
+# Auto-generated scrape list for zero-price canonicals found via HEAD check
+# format: id	canonical_name	rezus_url	anteja_url
+93	Alavas	https://www.rezus.lt/alavas	
+104	Aliuminis	https://www.rezus.lt/aliuminis	
+121	Anti – Gliadiniai IgA Antikūnai (vaikams dėl celiakinės ligos ištyrimo)	https://www.rezus.lt/anti-gliadiniai-iga-antikunai-vaikams-del-celiakines-ligos-istyrimo	
+122	Anti – Gliadiniai IgG Antikūnai (vaikams dėl celiakinės ligos ištyrimo)	https://www.rezus.lt/anti-gliadiniai-igg-antikunai-vaikams-del-celiakines-ligos-istyrimo	
+140	Antikūnai IgM prieš Candida grybelį	https://www.rezus.lt/antikunai-igm-pries-candida-grybeli	
+158	Auksas	https://www.rezus.lt/auksas	
+159	Bakterinės vaginozės 7-ių sukelėjų paletė PGR (Megasphaera 1, Lactobacillus spp., Bacteroides fragilis, Gardnerella vaginalis, su bakterine vaginoze asocijuojamos bakterijos (BVAB2), Atopobium vaginae, Mobiluncus spp.)	https://www.rezus.lt/bakterines-vaginozes-7-iu-sukeleju-palete-pgr-megasphaera-1-lactobacillus-spp-bacteroides-fragilis-gardnerella-vaginalis-su-bakterine-vaginoze-asocijuojamos-bakterijos-bvab2-atopobium-vaginae-mobiluncus-spp	
+160	Berilis	https://www.rezus.lt/berilis	
+167	Bismutas	https://www.rezus.lt/bismutas	
+188	Candida Grybelio Antigenas	https://www.rezus.lt/candida-grybelio-antigenas	
+206	Chlamydia trachomatis (PGR) šlapime	https://www.rezus.lt/chlamydia-trachomatis-pgr-slapime	
+215	Chromogranino A (neuroendokrininių auglių žymuo) nustatymas	https://www.rezus.lt/chromogranino-a-neuroendokrininiu-augliu-zymuo-nustatymas	
+293	Geležies (Fe) tyrimas	https://www.rezus.lt/gelezies-fe-tyrimas	
+298	Genitalijų opų 7-ių sukelėjų paletė iš nuograndų (Herpes simplex 1 (HSV- 1), Herpes simplex 2 (HSV-2), Haemophilus ducreyi, Cytomegalo virus (CMV), Chlamydia trachomatis LGV, Treponema pallidum, Varicellazoster virusas (VZV)) PGR metodu	https://www.rezus.lt/genitaliju-opu-7-iu-sukeleju-palete-is-nuograndu-herpes-simplex-1-hsv-1-herpes-simplex-2-hsv-2-haemophilus-ducreyi-cytomegalo-virus-cmv-chlamydia-trachomatis-lgv-treponema-pallidum-varicellazoster-virusas-vzv-pgr-metodu	
+300	Genitalijų opų 7-ių sukelėjų paletė iš šlapimo (Herpes simplex 1 (HSV-1), Herpes simplex 2 (HSV-2), Haemophilus ducreyi, Cytomegalo virus (CMV), Chlamydia trachomatis LGV, Treponema pallidum, Varicellazoster virusas (VZV)) PGR metodu	https://www.rezus.lt/genitaliju-opu-7-iu-sukeleju-palete-is-slapimo-herpes-simplex-1-hsv-1-herpes-simplex-2-hsv-2-haemophilus-ducreyi-cytomegalo-virus-cmv-chlamydia-trachomatis-lgv-treponema-pallidum-varicellazoster-virusas-vzv-pgr-metodu	
+308	Gliukozės koncentracijos serume nustatymas	https://www.rezus.lt/gliukozes-koncentracijos-serume-nustatymas	
+354	Ilgaamžiškumo ištyrimo MINI programa	https://www.rezus.lt/ilgaamziskumo-istyrimo-mini-programa	
+360	Inhibino B nustatymas	https://www.rezus.lt/inhibino-b-nustatymas	
+367	Jodas	https://www.rezus.lt/jodas	
+374	Kalcio nustatymas šlapime	https://www.rezus.lt/kalcio-nustatymas-slapime	
+390	Kortizolis (COR) ryte	https://www.rezus.lt/kortizolis-cor-ryte	
+398	Laimo boreliozės IgM imunoblotingo nustatymas	https://www.rezus.lt/laimo-boreliozes-igm-imunoblotingo-nustatymas	
+413	Litis	https://www.rezus.lt/litis	
+435	Manganas	https://www.rezus.lt/manganas	
+444	Molibdenas	https://www.rezus.lt/molibdenas	
+456	Mycoplasma genitalium (PGR)	https://www.rezus.lt/mycoplasma-genitalium-pgr	
+460	Mycoplasma hominis (PGR)	https://www.rezus.lt/mycoplasma-hominis-pgr	
+461	Mycoplasma hominis (PGR) šlapime	https://www.rezus.lt/mycoplasma-hominis-pgr-slapime	
+524	Paladis	https://www.rezus.lt/paladis	
+565	Renino nustatymas judant	https://www.rezus.lt/renino-nustatymas-judant	
+567	Renino nustatymas ramybėje	https://www.rezus.lt/renino-nustatymas-ramybeje	
+577	Rubella IgM antikūnai	https://www.rezus.lt/rubella-igm-antikunai	
+971	Sidabras	https://www.rezus.lt/sidabras	
+987	Švinas	https://www.rezus.lt/svinas	
+992	Talis	https://www.rezus.lt/talis	
+1008	Titanas	https://www.rezus.lt/titanas	
+1021	Trichomonas vaginalis (PGR) šlapime	https://www.rezus.lt/trichomonas-vaginalis-pgr-slapime	
+1046	Varis	https://www.rezus.lt/varis	
+1050	Vitaminas A	https://www.rezus.lt/vitaminas-a	
+1052	Vitaminas B1	https://www.rezus.lt/vitaminas-b1	
+1055	Vitaminas B2	https://www.rezus.lt/vitaminas-b2	
+1060	Vitaminas B6	https://www.rezus.lt/vitaminas-b6	
+1062	Vitaminas C	https://www.rezus.lt/vitaminas-c	
+1065	Vitaminas E	https://www.rezus.lt/vitaminas-e	
+1070	Vitamino D tyrimas	https://www.rezus.lt/vitamino-d-tyrimas	
+1075	Vyrų sveikatos prevencijos programa	https://www.rezus.lt/vyru-sveikatos-prevencijos-programa	

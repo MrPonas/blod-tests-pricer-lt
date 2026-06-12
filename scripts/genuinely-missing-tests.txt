@@ -1,0 +1,89 @@
+82	Kraujo grupės ir Rh faktoriaus nustatymas
+86	Aktyvuotas dalinis tromboplastinis laikas
+87	Alfa-fetaproteinas (Sėklidžių vėžio žymuo)
+89	Andrenokortikotropinis hormonas
+93	Alavas
+104	Aliuminis
+109	Antimitochondrinių antikūnų atrankos tyrimas
+110	Antimulerinis hormonas
+121	Anti – Gliadiniai IgA Antikūnai (vaikams dėl celiakinės ligos ištyrimo)
+122	Anti – Gliadiniai IgG Antikūnai (vaikams dėl celiakinės ligos ištyrimo)
+124	Antikūnai prieš hepatito B paviršinį antigeną
+125	Hepatito C viruso kiekybinis antikūnų nustatymas
+150	Antistreptolizino O nustatymas
+156	Antikūnai prieš skydliaukės peroksidazę
+158	Auksas
+160	Berilis
+161	Kaulų rezorbcijos Žymuo
+167	Bismutas
+172	C – Peptidas
+181	Krūtų vėžio žymuo
+188	Candida Grybelio Antigenas
+198	Karbohydratdeficitinis transferinas
+215	Chromogranino A (neuroendokrininių auglių žymuo) nustatymas
+221	Kreatinkinazės širdies izofermentas
+223	Chloras
+236	Varis (mikroelementas)
+253	Didelio tankio lipoproteinų cholesterolis
+258	Epštein Baro Viruso IgG antikūnai
+259	Epštein Baro Viruso IgM antikūnai
+279	Folio rūgštis
+286	Laisvas trijodtironinas
+287	Laisvas tiroksinas
+293	Geležies (Fe) tyrimas
+298	Genitalijų opų 7-ių sukelėjų paletė iš nuograndų (Herpes simplex 1 (HSV- 1), Herpes simplex 2 (HSV-2), Haemophilus ducreyi, Cytomegalo virus (CMV), Chlamydia trachomatis LGV, Treponema pallidum, Varicellazoster virusas (VZV)) PGR metodu
+300	Genitalijų opų 7-ių sukelėjų paletė iš šlapimo (Herpes simplex 1 (HSV-1), Herpes simplex 2 (HSV-2), Haemophilus ducreyi, Cytomegalo virus (CMV), Chlamydia trachomatis LGV, Treponema pallidum, Varicellazoster virusas (VZV)) PGR metodu
+321	Hepatito B e antigenas (HBeAg) viruso šerdinio antigeno degradacijos produktas
+322	Hepatito B viruso antigeno kokybinis nustatymas
+324	Kiaušidžių vėžio žymuo (Kiaušidžių priedelio sekretuojamas baltymas)
+347	Testas slaptam kraujavimui susekti
+354	Ilgaamžiškumo ištyrimo MINI programa
+360	Inhibino B nustatymas
+367	Jodas
+374	Kalcio nustatymas šlapime
+390	Kortizolis (COR) ryte
+395	Laisvas beta žmogaus chorioninis gonadotropinas
+407	Kraujo forminių ląstelių mikroskopavimas
+408	Luteinizuojantis hormonas
+413	Litis
+435	Manganas
+437	Magnis
+439	Albuminų kiekis paros šlapime
+444	Molibdenas
+450	Cholesterolis atliekamas analizatoriumi
+480	Kaulų apykaitos formavimosi žymuo
+491	Dėl Dauno bei Edward's ir Patau's sindromų rizikos vertinimo
+492	Dėl Dauno sindromo bei Trisomijos 18 ir nervinio vamzdelio defekto
+496	Plus (trisomijos 21, 18 ir 13 + X, Y aneuploidijos + 8 mikrodelecijos + vaisiaus lytis)
+497	N-terminalinis pro-B natriuretinis peptidas
+498	Nuolat jaučiate energijos stygių?
+524	Paladis
+556	Pro gastrino relizinis propeptidas (Plaučių vėžio žymuo)
+561	Kraujo krešėjimo rodiklių nustatymas
+562	Parathormonas
+564	Tuberkuliozės tyrimas
+565	Renino nustatymas judant
+567	Renino nustatymas ramybėje
+574	Sifilio antikūnų nustatymo sertifikato išdavimas
+578	Melonomos metastazių žymuo
+971	Sidabras
+985	Somatropinis hormonas
+987	Švinas
+992	Talis
+993	Tuberkuliozės antikūnų nustatymo sertifikato išdavimas
+1008	Titanas
+1014	Sifilio antikūnai (TPHA)
+1015	Navikų polipeptido specifinis antigenas
+1030	Storosios žarnos vėžio žymuo
+1046	Varis
+1050	Vitaminas A
+1052	Vitaminas B1
+1055	Vitaminas B2
+1060	Vitaminas B6
+1062	Vitaminas C
+1065	Vitaminas E
+1070	Vitamino D tyrimas
+1075	Vyrų sveikatos prevencijos programa
+1078	Žmogaus imunodeficito viruso antikūnai ir sertifikato išdavimas
+1079	Žmogaus imunodeficito viruso 1/2 (ŽIV 1/2) antikūnų ir p24 Ag (įskaitant grupę 0) nustatymas
+1085	Cinkas (mikroelementas)

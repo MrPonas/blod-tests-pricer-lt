@@ -141,3 +141,40 @@ LANGFUSE_SECRET_KEY=...
 /scrapers/lib/mapper.ts          ← cache → vector → agent orchestration
 /workers/process-mapping-jobs.ts ← worker entry point
 /scripts/bootstrap-canonical.ts  ← one-time bootstrap
+
+## Post-onboarding checklist (run after every new vendor is added)
+
+After scraping a new lab and processing the mapping queue:
+
+1. Run scripts/audit-coverage-gaps.ts
+   → finds tests that exist at multiple labs but mapped to
+     different canonicals
+   → auto-merges obvious duplicates (≥ 0.98 similarity)
+   → outputs review CSV for ambiguous cases (0.85–0.98)
+   → also catches 0.70–0.85 pairs where names are related
+     (same first word or shared medical abbreviation)
+
+2. Run scripts/check-single-lab-tests.ts
+   → finds "Lab A has test X, Lab B has test Y, similar but
+     neither lab has a price for the other's canonical"
+   → catches the Alfa-amilazė pattern missed by audit-coverage-gaps
+   → exits 1 if any actionable pairs ≥ 0.85 found
+
+3. Run scripts/merge-duplicate-canonicals.ts
+   → finds canonicals with similarity ≥ 0.98
+   → auto-merges identical-name duplicates
+
+4. Check is_stale = 0:
+   SELECT COUNT(*) FROM prices WHERE is_stale = true
+   → should be 0
+
+5. Check null embeddings:
+   SELECT COUNT(*) FROM tests WHERE embedding IS NULL
+   → should be 0
+
+6. Open /admin/gaps in the app
+   → review any remaining single-lab tests flagged as
+     potential cross-lab duplicates
+
+Do not skip these steps — they catch the data quality issues
+that would otherwise be found manually by browsing the app.

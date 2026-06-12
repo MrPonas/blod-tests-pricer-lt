@@ -1,0 +1,40 @@
+name: Process Mapping Jobs
+
+on:
+  workflow_run:
+    workflows: ["Daily Price Scrape"]
+    types: [completed]
+  workflow_dispatch:   # Allow manual trigger from GitHub UI
+
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    # Run even if scrape partially failed — process whatever was queued
+    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - name: Process mapping queue
+        run: npx tsx workers/process-mapping-jobs.ts
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY_MAPPING: ${{ secrets.ANTHROPIC_API_KEY_MAPPING }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+
+      - name: Audit cross-lab coverage gaps
+        run: npx tsx scripts/audit-coverage-gaps.ts || echo "::warning::audit-coverage-gaps found actionable pairs above 0.85 — check logs"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Check single-lab near-duplicates
+        run: npx tsx scripts/check-single-lab-tests.ts || echo "::warning::check-single-lab-tests found actionable pairs above 0.85 — check logs"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

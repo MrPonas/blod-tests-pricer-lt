@@ -1,0 +1,6 @@
+{
+  "name": "Laboratorijų Kainos",
+  "description": "Kraujo tyrimų kainų palyginimo įrankis Lietuvoje (Antėja, Synlab, Medicina Practica, Rezus, ir kt.)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
