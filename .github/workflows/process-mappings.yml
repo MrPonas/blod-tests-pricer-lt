@@ -1,16 +1,16 @@
 name: Process Mapping Jobs
 
 on:
-  workflow_run:
-    workflows: ["Daily Price Scrape"]
-    types: [completed]
+  # workflow_run:
+  #   workflows: ["Daily Price Scrape"]
+  #   types: [completed]
   workflow_dispatch:   # Allow manual trigger from GitHub UI
 
 jobs:
   map:
     runs-on: ubuntu-latest
     # Run even if scrape partially failed — process whatever was queued
-    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion != 'cancelled' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

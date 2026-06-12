@@ -1,8 +1,8 @@
 name: Daily Price Scrape
 
 on:
-  schedule:
-    - cron: '0 1 * * *'  # 01:00 UTC = 03:00 EET (UTC+2 summer)
+  # schedule:
+  #   - cron: '0 1 * * *'  # 01:00 UTC = 03:00 EET (UTC+2 summer)
   workflow_dispatch:       # Allow manual trigger from GitHub UI
 
 jobs:

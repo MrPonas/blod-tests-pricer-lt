@@ -178,3 +178,15 @@ After scraping a new lab and processing the mapping queue:
 
 Do not skip these steps — they catch the data quality issues
 that would otherwise be found manually by browsing the app.
+
+## Development mode
+
+Automated scraping is disabled. To run scraper locally:
+  npx tsx scrapers/run-all.ts
+To run mapping worker locally:
+  npx tsx workers/process-mapping-jobs.ts
+To trigger full scrape + deploy manually:
+  Go to GitHub → Actions → Daily Price Scrape → Run workflow
+
+To push a code change without triggering a Vercel deploy:
+  git commit -m "[skip deploy] your message here"
