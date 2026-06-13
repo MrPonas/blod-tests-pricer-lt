@@ -43,9 +43,11 @@ export function getDisplayName(nameLt: string, aliases?: string[]): string {
 
 /** Keywords that identify non-blood-test entries (procedures, packages, etc.) */
 export const PROCEDURE_KEYWORDS = [
-  'injekcija', 'infuzija', 'procedūra', 'procedurų', 'konsultacija',
-  'programa', 'paketas', 'masažas', 'masažų',
-  'paletė', 'profilis', 'kursas',
+  'injekcij', 'infuzij', 'procedūr', 'procedur',
+  'konsultacij', 'konsultav',
+  'program', 'paket', 'masaž',
+  'paletė', 'profilis', 'kurs',
+  'pažyma', 'vizit', 'sveikatos tikrinimas', 'sveikatos patikrinimas', 'kraujo paėmim', 'suleidimas',
 ];
 
 export function isProcedure(nameLt: string): boolean {

@@ -422,7 +422,6 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
   const cartFirstRender = useRef(true);
   const [visibleLabs, setVisibleLabs] = useState<string[]>(() => labs.map(l => l.id));
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'name' | 'cheapest' | 'savings'>('name');
   const [expandedTestId, setExpandedTestId] = useState<string | null>(null);
   const [historyCache, setHistoryCache] = useState<Record<string, HistoryPoint[]>>({});
@@ -478,18 +477,16 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
       const matches = fuseSearch(searchTerm.trim(), 50);
       const order = new Map(matches.map((m, i) => [String(m.id), i]));
       result = tests
-        .filter(t => order.has(t.id) && (selectedCategory === 'all' || t.category === selectedCategory))
+        .filter(t => order.has(t.id))
         .sort((a, b) => (order.get(a.id) ?? 999) - (order.get(b.id) ?? 999));
     } else {
       // No search term (or index not yet loaded) — show all with sort applied
       result = tests.filter(t => {
         const q = searchTerm.toLowerCase();
-        const matchSearch = !q ||
+        return !q ||
           t.name.toLowerCase().includes(q) ||
           (t.latinName && t.latinName.toLowerCase().includes(q)) ||
           t.code.toLowerCase().includes(q);
-        const matchCat = selectedCategory === 'all' || t.category === selectedCategory;
-        return matchSearch && matchCat;
       });
       if (sortBy === 'name') {
         result = [...result].sort((a, b) => a.name.localeCompare(b.name, 'lt'));
@@ -511,12 +508,12 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
     }
 
     return result;
-  }, [tests, searchTerm, fuseReady, fuseSearch, selectedCategory, sortBy, visibleLabs]);
+  }, [tests, searchTerm, fuseReady, fuseSearch, sortBy, visibleLabs]);
 
   const visibleTests = filteredTests.slice(0, visibleCount);
 
   // Reset pagination when filters change
-  useEffect(() => { setVisibleCount(50); }, [searchTerm, selectedCategory, sortBy, visibleLabs]);
+  useEffect(() => { setVisibleCount(50); }, [searchTerm, sortBy, visibleLabs]);
 
   // ── Cart computations ──────────────────────────────────────────────────────
   const cartTests = useMemo(() => tests.filter(t => cartItems.includes(t.id)), [tests, cartItems]);
@@ -849,16 +846,6 @@ export default function HomeClient({ tests, labs, categories, totalTests, lastUp
                 ))}
               </div>
 
-              {/* Category pills */}
-              <div className="flex flex-wrap gap-1.5 pt-3 border-t border-[#e5e5e0]">
-                {categories.map(cat => (
-                  <button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-3 py-1 text-[10px] font-medium rounded-none transition uppercase tracking-widest ${
-                      selectedCategory === cat.id ? 'bg-[#1a1a1a] text-white border border-[#1a1a1a]' : 'bg-[#f4f4f0] hover:bg-[#e5e5e0] text-[#63635e] border border-[#e5e5e0]'
-                    }`}>{cat.name}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Cart tip */}
